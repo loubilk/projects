@@ -1,6 +1,8 @@
 #!/bin/bash
+# Yes, bash needed because of process substitution
 
 ProgramName=${0##*/}
+ProgramLog=${ProgramName%.sh}.log
 
 me=$$
 pb_res=${1:-'/var/lib/pbench-agent'}
@@ -14,6 +16,7 @@ es_admin_cert=/etc/elasticsearch/secret/admin-cert
 es_admin_key=/etc/elasticsearch/secret/admin-key
 es_url=https://logging-es:9200
 
+# Set global variables which change between slstress test runs
 define_global_vars()
 {
   tmout=${1:-300}
@@ -102,7 +105,7 @@ es_get_stats()
   for es_pod in $es_pods
   do
     oc exec $es_pod -- curl -s -k --cert $es_admin_cert --key $es_admin_key --cacert $es_admin_cert \
-      $es_url/_stats >> ${log_dir}/${es_pod}.log
+      $es_url/_stats?pretty >> ${log_dir}/${es_pod}.log
   done
 }
 
@@ -114,10 +117,15 @@ es_logs()
   echo "Saving ElasticSearch logs." >&2
   mkdir -p ${log_dir}
 
+  test -t 9 && {
+    echo "ProgramName: file descriptor 9 already opened, cannot save logs." >&1
+    return 1
+  }
+
   for es_pod in $es_pods
   do
     mkdir -p ${log_dir}/${es_pod}
-    exec 8<<_EOF_
+    exec 9<<_EOF_
 _cluster/health?pretty		_cluster_health
 _cluster/state?pretty		_cluster_state
 _cluster/pending_tasks?pretty	_cluster_pending_tasks
@@ -131,7 +139,7 @@ _cat/recovery			_cat_recovery
 _EOF_
 #_cat/indices?v	# doesn't work
 
-    while read -u8 -r api save rest
+    while read -u9 -r api save rest
     do
       echo "# $es_url/$api:" >> ${log_dir}/${es_pod}/${save}.log
       oc exec $es_pod -- curl -s -k --cert $es_admin_cert --key $es_admin_key --cacert $es_admin_cert \
@@ -143,7 +151,7 @@ _EOF_
 system_logs() {
   local log_dir=${pb_dir_log}/${1-system}
 
-  echo "Saving System logs." >&2
+  echo "Saving system logs." >&2
   mkdir -p ${log_dir}
 
   grep "journal: Suppressed" /var/log/messages >> ${log_dir}/rate-limiting.log
@@ -160,13 +168,23 @@ oc_logs()
   oc get nodes -o wide > ${log_dir}/oc_get_nodes.log
   oc get pods -o wide > ${log_dir}/oc_get_pods.log
 
-  for p in $(oc get pods | tail -n+2 | awk '{print $1}')
+  for p in $(oc get pods | grep -v ^logging-kibana | tail -n+2 | awk '{print $1}')
   do
     local log_dir_pod=${log_dir}/pods
     mkdir -p ${log_dir_pod}
     oc logs $p > ${log_dir_pod}/oc_logs-${p}.log
     oc describe pod $p > ${log_dir_pod}/oc_describe-${p}.log
   done
+
+  # Kibana needs special handling
+  for p in $(oc get pods | grep ^logging-kibana | awk '{print $1}')
+  do
+    local log_dir_pod=${log_dir}/pods
+    mkdir -p ${log_dir_pod}
+    oc logs -c kibana $p > ${log_dir_pod}/oc_logs-${p}-kibana.log
+    oc logs -c kibana-proxy $p > ${log_dir_pod}/oc_logs-${p}-kibana-proxy.log
+    oc describe pod $p > ${log_dir_pod}/oc_describe-${p}.log
+   done
 }
 
 pb_move_logs()
@@ -233,6 +251,13 @@ slstress_run()
 
 main()
 {
+  mkdir -p ${pb_dir_log}
+
+  # Link file descriptor #3 with stdout and #4 with stderr.
+  exec 3>&1 4>&2
+  # Use process substitution to log everything sent on stdout/err to $log_file.
+  exec > >(tee ${pb_dir_log}/$ProgramLog) 2>&1
+
   system_logs ""
   oc_logs "oc/pre_test"
   es_logs "es/pre_test"
@@ -242,7 +267,7 @@ main()
   echo "Starting pbench tools." >&2
   pbench-start-tools -d ${pb_dir}
 
-  echo "Starting slstress." >&2
+  echo "Starting slstress: duration=${tmout}s; line length=${string_length}; delay=${delay}us; tag=${tag}" >&2
   slstress_run "${tmout}" "${string_length}" "${delay}" "${tag}" "${pb_dir_log}"
 
   es_get_stats "es/stats/post_test"
@@ -258,14 +283,16 @@ main()
   pb_move_logs "${pb_dir_log}" "${pb_dir_log_postprocess}"
   payload_show_logs
   pbench-postprocess-tools -d ${pb_dir}
+
+  # Restore stdout, stderr and close file descriptors #3, #4.
+  exec 1>&3 3>&- 2>&4 4>&-
 }
 
 for line_length in 256 512 1024 2048
 do
-  echo "line length: $line_length"
   for delay in 1000000 100000 10000 1000 100 0
   do
-    echo "delay: $delay"
+    echo "Duration=${tmout}; line length=${line_length}; delay=${delay}us"
     define_global_vars 300 $line_length $delay no_limits
     main
     echo "Sleeping ${pause_secs}s"
