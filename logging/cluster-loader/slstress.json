@@ -1,0 +1,102 @@
+{
+    "apiVersion": "v1",
+    "kind": "Template",
+    "metadata": {
+        "name": "slstress"
+    },
+    "objects": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "generateName": "slstress-",
+                "labels": {
+                    "deployment": "slstress",
+                    "deploymentconfig": "slstress",
+                    "run": "slstress"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "SLSTRESS_DELAY",
+                                "value": "${SLSTRESS_DELAY}"
+                            },
+                            {
+                                "name": "SLSTRESS_LINE_LENGTH",
+                                "value": "${SLSTRESS_LINE_LENGTH}"
+                            },
+                            {
+                                "name": "SLSTRESS_TIMEOUT",
+                                "value": "${SLSTRESS_TIMEOUT}"
+                            }
+                        ],
+                        "image": "docker.io/jmencak/slstress:latest",
+                        "command": [ "/bin/timeout", "-t", "${SLSTRESS_TIMEOUT}", "/slstress", "-l", "${SLSTRESS_LINE_LENGTH}", "-w", "${SLSTRESS_DELAY}" ],
+                        "imagePullPolicy": "Always",
+                        "name": "slstress",
+                        "resources": {},
+                        "securityContext": {
+                            "capabilities": {
+                                "drop": [
+                                    "KILL",
+                                    "MKNOD",
+                                    "SETGID",
+                                    "SETUID",
+                                    "SYS_CHROOT"
+                                ]
+                            },
+                            "privileged": false,
+                            "seLinuxOptions": {
+                                "level": "s0:c9,c4"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/dev/log",
+                                "name": "dev-log"
+                            }
+                        ]
+                    }
+                ],
+                "restartPolicy": "Never",
+                "volumes": [
+                    {
+                        "hostPath": {
+                            "path": "/dev/log"
+                        },
+                        "name": "dev-log"
+                    }
+                ]
+            }
+        }
+    ],
+    "parameters": [
+        {
+            "description": "Delay SLSTRESS_DELAY microseconds before sending another log line",
+            "displayName": "Delay",
+            "name": "SLSTRESS_DELAY",
+            "value": "1000000"
+        },
+        {
+            "description": "Send log lines of length SLSTRESS_LINE_LENGTH characters",
+            "displayName": "Line length",
+            "name": "SLSTRESS_LINE_LENGTH",
+            "value": "80"
+        },
+        {
+            "description": "Stop logging after SLSTRESS_TIMEOUT seconds",
+            "displayName": "Timeout",
+            "name": "SLSTRESS_TIMEOUT",
+            "value": "60"
+        },
+        {
+            "description": "Number to append to the name of resources",
+            "name": "IDENTIFIER",
+            "value": "1"
+        }
+    ]
+}

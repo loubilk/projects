@@ -1,0 +1,20 @@
+projects:
+  - num: 1
+    basename: p
+    tuning: default
+    templates:
+      - num: 1
+        file: slstress.json
+        parameters:
+        - SLSTRESS_DELAY: 1000000
+        - SLSTRESS_LINE_LENGTH: 80
+        - SLSTRESS_TIMEOUT: 30
+
+tuningsets:
+  - name: default
+    pods:
+      stepping:
+        stepsize: 5
+        pause: 10 s
+      rate_limit:
+        delay: 250 ms
