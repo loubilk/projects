@@ -21,20 +21,24 @@
                     {
                         "env": [
                             {
-                                "name": "SLSTRESS_DELAY",
-                                "value": "${SLSTRESS_DELAY}"
+                                "name": "MODE",
+                                "value": "${MODE}"
                             },
                             {
-                                "name": "SLSTRESS_LINE_LENGTH",
-                                "value": "${SLSTRESS_LINE_LENGTH}"
+                                "name": "LOGGING_TIMEOUT",
+                                "value": "${LOGGING_TIMEOUT}"
                             },
                             {
-                                "name": "SLSTRESS_TIMEOUT",
-                                "value": "${SLSTRESS_TIMEOUT}"
+                                "name": "LOGGING_DELAY",
+                                "value": "${LOGGING_DELAY}"
+                            },
+                            {
+                                "name": "LOGGING_LINE_LENGTH",
+                                "value": "${LOGGING_LINE_LENGTH}"
                             }
                         ],
                         "image": "docker.io/jmencak/slstress:latest",
-                        "command": [ "/bin/timeout", "-t", "${SLSTRESS_TIMEOUT}", "/slstress", "-l", "${SLSTRESS_LINE_LENGTH}", "-w", "${SLSTRESS_DELAY}" ],
+                        "command": [ "/logger.sh" ],
                         "imagePullPolicy": "Always",
                         "name": "slstress",
                         "resources": {},
@@ -76,22 +80,28 @@
     ],
     "parameters": [
         {
-            "description": "Delay SLSTRESS_DELAY microseconds before sending another log line",
+            "description": "Mode of operation: logger|slstress",
+            "displayName": "Mode of operation",
+            "name": "MODE",
+            "value": "logger"
+        },
+        {
+            "description": "Stop logging after LOGGING_TIMEOUT seconds",
+            "displayName": "Timeout",
+            "name": "LOGGING_TIMEOUT",
+            "value": "60"
+        },
+        {
+            "description": "Delay LOGGING_DELAY microseconds before sending another log line",
             "displayName": "Delay",
-            "name": "SLSTRESS_DELAY",
+            "name": "LOGGING_DELAY",
             "value": "1000000"
         },
         {
-            "description": "Send log lines of length SLSTRESS_LINE_LENGTH characters",
+            "description": "Send log lines of length LOGGING_LINE_LENGTH characters",
             "displayName": "Line length",
-            "name": "SLSTRESS_LINE_LENGTH",
+            "name": "LOGGING_LINE_LENGTH",
             "value": "80"
-        },
-        {
-            "description": "Stop logging after SLSTRESS_TIMEOUT seconds",
-            "displayName": "Timeout",
-            "name": "SLSTRESS_TIMEOUT",
-            "value": "60"
         },
         {
             "description": "Number to append to the name of resources",

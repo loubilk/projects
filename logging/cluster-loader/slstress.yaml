@@ -6,9 +6,10 @@ projects:
       - num: 1
         file: slstress.json
         parameters:
-        - SLSTRESS_DELAY: 1000000
-        - SLSTRESS_LINE_LENGTH: 80
-        - SLSTRESS_TIMEOUT: 30
+        - MODE: slstress
+        - LOGGING_TIMEOUT: 30
+        - LOGGING_DELAY: 1000000
+        - LOGGING_LINE_LENGTH: 80
 
 tuningsets:
   - name: default
