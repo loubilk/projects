@@ -9,7 +9,7 @@
             "apiVersion": "v1",
             "kind": "Pod",
             "metadata": {
-                "generateName": "slstress-",
+                "generateName": "${RUN}-",
                 "labels": {
                     "deployment": "slstress",
                     "deploymentconfig": "slstress",
@@ -17,16 +17,19 @@
                 }
             },
             "spec": {
+                "nodeSelector": {
+                    "placement": "${RUN}"
+                },
                 "containers": [
                     {
                         "env": [
                             {
-                                "name": "MODE",
-                                "value": "${MODE}"
+                                "name": "RUN",
+				"value": "${RUN}"
                             },
                             {
-                                "name": "LOGGING_TIMEOUT",
-                                "value": "${LOGGING_TIMEOUT}"
+                                "name": "RUN_TIMEOUT",
+                                "value": "${RUN_TIMEOUT}"
                             },
                             {
                                 "name": "LOGGING_DELAY",
@@ -35,10 +38,50 @@
                             {
                                 "name": "LOGGING_LINE_LENGTH",
                                 "value": "${LOGGING_LINE_LENGTH}"
+                            },
+                            {
+                                "name": "STRESS_CPU",
+				"value": "${STRESS_CPU}"
+                            },
+                            {
+                                "name": "STRESS_TIME",
+				"value": "${STRESS_TIME}"
+                            },
+                            {
+                                "name": "TARGET_HOST",
+				"value": "${TARGET_HOST}"
+                            },
+                            {
+                                "name": "TARGET_PORT",
+				"value": "${TARGET_PORT}"
+                            },
+                            {
+                                "name": "JMETER_RAMP",
+				"value": "${JMETER_RAMP}"
+                            },
+                            {
+                                "name": "JMETER_TIME",
+				"value": "${JMETER_TIME}"
+                            },
+                            {
+                                "name": "JMETER_TPS",
+				"value": "${JMETER_TPS}"
+                            },
+                            {
+                                "name": "PBENCH_HOST",
+				"value": "${PBENCH_HOST}"
+                            },
+                            {
+                                "name": "PBENCH_DIR",
+				"value": "${PBENCH_DIR}"
+                            },
+                            {
+                                "name": "GUN",
+				"value": "${GUN}"
                             }
                         ],
-                        "image": "docker.io/jmencak/slstress:latest",
-                        "command": [ "/logger.sh" ],
+                        "image": "jmencak/slstress:latest",
+                        "command": [ "/docker-entrypoint.sh" ],
                         "imagePullPolicy": "Always",
                         "name": "slstress",
                         "resources": {},
@@ -80,32 +123,98 @@
     ],
     "parameters": [
         {
-            "description": "Mode of operation: logger|slstress",
-            "displayName": "Mode of operation",
-            "name": "MODE",
-            "value": "logger"
+            "name": "RUN",
+            "displayName": "Run application: stress|logger|slstress",
+	    "description": "Tells the container which appplication to execute",
+            "value": "slstress"
         },
         {
-            "description": "Stop logging after LOGGING_TIMEOUT seconds",
-            "displayName": "Timeout",
-            "name": "LOGGING_TIMEOUT",
+            "name": "RUN_TIMEOUT",
+            "displayName": "Application timeout",
+            "description": "Stop running application RUN_TIMEOUT seconds",
             "value": "60"
         },
         {
-            "description": "Delay LOGGING_DELAY microseconds before sending another log line",
-            "displayName": "Delay",
             "name": "LOGGING_DELAY",
+            "displayName": "Logging delay",
+            "description": "Delay LOGGING_DELAY microseconds before sending another log line",
             "value": "1000000"
         },
         {
-            "description": "Send log lines of length LOGGING_LINE_LENGTH characters",
-            "displayName": "Line length",
             "name": "LOGGING_LINE_LENGTH",
+            "displayName": "Log line length",
+            "description": "Send log lines of length LOGGING_LINE_LENGTH characters",
             "value": "80"
         },
+	{
+	    "name": "STRESS_CPU",
+	    "displayName": "STRESS CPU Threads",
+	    "description": "How many stress CPU worker threads to spawn",
+	    "value": "6"
+	},
+	{
+	    "name": "STRESS_TIME",
+	    "displayName": "Stress timeout",
+	    "description": "The duration that stress will run before ending",
+	    "value": "60"
+	},
+	{
+	    "name": "TARGET_HOST",
+	    "displayName": "JMeter IP",
+	    "description": "The target IP for HTTP requests in JMeter",
+	    "value": "127.0.0.1"
+	},
+	{
+	    "name": "TARGET_PORT",
+	    "displayName": "JMeter Port",
+	    "description": "The target port for HTTP requests in JMeter",
+	    "value": "80"
+	},
+	{
+	    "name": "JMETER_RAMP",
+	    "displayName": "JMeter Ramp-up Time",
+	    "description": "The ramp-up period of the thread group in Jmeter",
+	    "value": "30"
+	},
+	{
+	    "name": "JMETER_TIME",
+	    "displayName": "JMeter run duration",
+	    "description": "The target port for HTTP requests in JMeter",
+	    "value": "120"
+	},
+	{
+	    "name": "JMETER_TPS",
+	    "displayName": "JMeter throughput",
+	    "description": "Thread throuput rate for JMeter",
+	    "value": "60"
+	},
+	{
+	    "name": "ROUTER_IP",
+	    "displayName": "Router IP",
+	    "description": "The IP of the OpenShift router to direct requets through",
+	    "value": "127.0.0.1"
+	},
+	{
+	    "name": "GUN",
+	    "displayName": "GUN IP Addr",
+	    "description": "The IP of the machine running cluster loader",
+	    "value": "127.0.0.1"
+	},
+	{
+	    "name": "PBENCH_HOST",
+	    "displayName": "PBENCH_HOST IP Addr",
+	    "description": "The IP of the machine to store Pbench results",
+	    "value": "127.0.0.1"
+	},
+	{
+	    "name": "PBENCH_DIR",
+	    "displayName": "PBENCH_DIR directory",
+	    "description": "The IP of the machine to store Pbench results",
+	    "value": "127.0.0.1"
+	},
         {
-            "description": "Number to append to the name of resources",
             "name": "IDENTIFIER",
+            "description": "Number to append to the name of resources",
             "value": "1"
         }
     ]

@@ -1,21 +1,35 @@
 projects:
   - num: 1
-    basename: p
+    basename: demo
     tuning: default
+    ifexists: reuse
     templates:
       - num: 1
-        file: slstress.json
+        file: content/quickstarts/slstress/slstress.json
         parameters:
-        - MODE: slstress
-        - LOGGING_TIMEOUT: 30
+        - RUN: "slstress"
+        - RUN_TIMEOUT: 60
         - LOGGING_DELAY: 1000000
         - LOGGING_LINE_LENGTH: 80
+        - ROUTER_IP: "172.31.41.250"
+        - PBENCH_HOST: "172.31.41.250"
+        - PBENCH_DIR: "/var/lib/pbench-agent/slstress-1"
+      - num: 1
+        file: content/quickstarts/slstress/slstress.json
+        parameters:
+        - RUN: "logger"
+        - RUN_TIMEOUT: 60
+        - LOGGING_DELAY: 1000000
+        - LOGGING_LINE_LENGTH: 80
+        - ROUTER_IP: "172.31.41.250"
+        - PBENCH_HOST: "172.31.41.250"
+        - PBENCH_DIR: "/var/lib/pbench-agent/slstress-1"
 
 tuningsets:
   - name: default
-    pods:
+    templates:
       stepping:
         stepsize: 5
-        pause: 10 s
+        pause: 0 s
       rate_limit:
-        delay: 250 ms
+        delay: 0 ms

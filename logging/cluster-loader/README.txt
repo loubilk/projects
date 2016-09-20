@@ -1,3 +1,3 @@
 Usage:
 ~~~~~~
-python cluster-loader.py -f slstress.yaml
+python cluster-loader.py -xavf slstress.yaml
