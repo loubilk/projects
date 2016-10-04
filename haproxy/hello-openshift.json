@@ -16,7 +16,7 @@
             },
             "spec": {
                 "selector": {
-                    "name": "hello-openshift"
+                    "name": "hello-openshift-${IDENTIFIER}"
                 },
                 "ports": [
                     {
@@ -54,9 +54,7 @@
             "metadata": {
                 "generateName": "hello-pod-",
                 "labels": {
-                    "name": "hello-openshift",
-                    "deployment": "hello-openshift",
-                    "deploymentconfig": "hello-openshift",
+                    "name": "hello-openshift-${IDENTIFIER}",
                     "test": "hello-openshift"
                 }
             },
@@ -73,7 +71,7 @@
                                 "value": "${SECOND_PORT}"
                             }
                         ],
-                        "image": "openshift/hello-openshift:v1.0.6",
+                        "image": "openshift/hello-openshift:v1.3.0",
                         "imagePullPolicy": "Always",
                         "name": "hello-openshift",
                         "ports": [
@@ -141,7 +139,7 @@
         {
             "name": "APPLICATION_DOMAIN",
             "displayName": "Application Hostname",
-            "description": "The exposed hostname that will route to the hello-service-* service, if left blank a value will be defaulted.",
+            "description": "The exposed hostname that will route to the hello-openshift-* service, if left blank a value will be defaulted.",
             "value": ""
         },
         {
