@@ -9,7 +9,7 @@
             "kind": "Service",
             "apiVersion": "v1",
             "metadata": {
-                "name": "hello-service",
+                "name": "hello-service-${IDENTIFIER}",
                 "labels": {
                     "name": "hello-openshift"
                 }
@@ -38,13 +38,13 @@
             "kind": "Route",
             "apiVersion": "v1",
             "metadata": {
-                "name": "hello-openshift-route"
+                "name": "hello-route-${IDENTIFIER}"
             },
             "spec": {
-                "host": "hello-openshift.router.default.svc.cluster.local",
+                "host": "${APPLICATION_DOMAIN}",
                 "to": {
                     "kind": "Service",
-                    "name": "hello-service"
+                    "name": "hello-service-${IDENTIFIER}"
                 }
             }
         },
@@ -77,6 +77,10 @@
                         "imagePullPolicy": "Always",
                         "name": "hello-openshift",
                         "ports": [
+                            {
+                                "containerPort": 8080,
+                                "protocol": "TCP"
+                            },
                             {
                                 "containerPort": 8888,
                                 "protocol": "TCP"
@@ -133,6 +137,12 @@
             "displayName": "Listen also on SECOND_PORT",
             "description": "Tells the container to start httpd server also on port SECOND_PORT",
             "value": "8888"
+        },
+        {
+            "name": "APPLICATION_DOMAIN",
+            "displayName": "Application Hostname",
+            "description": "The exposed hostname that will route to the hello-service-* service, if left blank a value will be defaulted.",
+            "value": ""
         },
         {
             "name": "IDENTIFIER",
