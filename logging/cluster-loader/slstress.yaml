@@ -4,25 +4,21 @@ projects:
     tuning: default
     ifexists: reuse
     templates:
-      - num: 1
+      - num: 2
         file: content/quickstarts/slstress/slstress.json
         parameters:
         - RUN: "slstress"
-        - RUN_TIMEOUT: 60
+        - RUN_TIME: 60
         - LOGGING_DELAY: 1000000
         - LOGGING_LINE_LENGTH: 80
-        - ROUTER_IP: "172.31.41.250"
-        - PBENCH_HOST: "172.31.41.250"
         - PBENCH_DIR: "/var/lib/pbench-agent/slstress-1"
       - num: 1
         file: content/quickstarts/slstress/slstress.json
         parameters:
         - RUN: "logger"
-        - RUN_TIMEOUT: 60
+        - RUN_TIME: 60
         - LOGGING_DELAY: 1000000
         - LOGGING_LINE_LENGTH: 80
-        - ROUTER_IP: "172.31.41.250"
-        - PBENCH_HOST: "172.31.41.250"
         - PBENCH_DIR: "/var/lib/pbench-agent/slstress-1"
 
 tuningsets:

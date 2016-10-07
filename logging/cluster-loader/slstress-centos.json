@@ -56,6 +56,10 @@
                                 "name": "TARGET_PORT",
 				"value": "${TARGET_PORT}"
                             },
+                            {   
+                                "name": "JMETER_SIZE",
+                                "value": "${JMETER_SIZE}"
+                            },
                             {
                                 "name": "JMETER_RAMP",
 				"value": "${JMETER_RAMP}"
@@ -77,7 +81,7 @@
 				"value": "${GUN}"
                             }
                         ],
-                        "image": "jmencak/slstress:latest",
+                        "image": "sjug/centos-stress:latest",
                         "imagePullPolicy": "IfNotPresent",
                         "name": "slstress",
                         "resources": {},
@@ -127,7 +131,7 @@
         {
             "name": "RUN_TIME",
             "displayName": "Application timeout",
-            "description": "Stop running application RUN_TIME seconds",
+            "description": "Stop running application RUN_TIM seconds",
             "value": "60"
         },
         {
@@ -166,10 +170,16 @@
 	    "description": "The target port for HTTP requests in JMeter",
 	    "value": "80"
 	},
+        {   
+            "name": "JMETER_SIZE",
+            "displayName": "JMeter instance size",
+            "description": "Number of hosts to stress per JMeter instance",
+            "value": "3"
+        },
 	{
 	    "name": "JMETER_RAMP",
 	    "displayName": "JMeter Ramp-up Time",
-	    "description": "The ramp-up period of the thread group in Jmeter",
+	    "description": "The ramp-up period of the thread group in JMeter",
 	    "value": "30"
 	},
 	{
