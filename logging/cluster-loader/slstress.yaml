@@ -11,7 +11,6 @@ projects:
         - RUN_TIME: 60
         - LOGGING_DELAY: 1000000
         - LOGGING_LINE_LENGTH: 80
-        - PBENCH_DIR: "/var/lib/pbench-agent/slstress-1"
       - num: 1
         file: content/quickstarts/slstress/slstress.json
         parameters:
@@ -19,7 +18,6 @@ projects:
         - RUN_TIME: 60
         - LOGGING_DELAY: 1000000
         - LOGGING_LINE_LENGTH: 80
-        - PBENCH_DIR: "/var/lib/pbench-agent/slstress-1"
 
 tuningsets:
   - name: default
