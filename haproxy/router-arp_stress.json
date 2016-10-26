@@ -38,7 +38,7 @@
             "kind": "Route",
             "apiVersion": "v1",
             "metadata": {
-                "name": "hello-route-${IDENTIFIER}"
+                "name": "hello-route-example-${IDENTIFIER}"
             },
             "spec": {
                 "host": "${APPLICATION_DOMAIN}",
@@ -54,8 +54,7 @@
             "metadata": {
                 "generateName": "hello-pod-",
                 "labels": {
-                    "name": "hello-openshift-${IDENTIFIER}",
-                    "test": "hello-openshift"
+                    "name": "hello-openshift-${IDENTIFIER}"
                 }
             },
             "spec": {
@@ -71,7 +70,7 @@
                                 "value": "${SECOND_PORT}"
                             }
                         ],
-                        "image": "openshift/hello-openshift:v1.3.0",
+                        "image": "openshift/hello-openshift",
                         "imagePullPolicy": "IfNotPresent",
                         "name": "hello-openshift",
                         "ports": [
@@ -85,7 +84,14 @@
                             }
                         ],
                         "resources": {
-
+                           "limits": {
+                                "cpu": "800m",
+                                "memory": "20Mi"
+                            },
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "10Mi"
+                            }
                         },
                         "securityContext": {
                             "capabilities": {
@@ -102,24 +108,10 @@
                                 "level": "s0:c9,c4"
                             }
                         },
-                        "terminationMessagePath": "/dev/termination-log",
-                        "volumeMounts": [
-                            {
-                                "mountPath": "/dev/log",
-                                "name": "dev-log"
-                            }
-                        ]
+                        "terminationMessagePath": "/dev/termination-log"
                     }
                 ],
-                "restartPolicy": "Never",
-                "volumes": [
-                    {
-                        "hostPath": {
-                            "path": "/dev/log"
-                        },
-                        "name": "dev-log"
-                    }
-                ]
+                "restartPolicy": "Always"
             }
         }
     ],

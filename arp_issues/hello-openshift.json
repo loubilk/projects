@@ -38,7 +38,7 @@
             "kind": "Route",
             "apiVersion": "v1",
             "metadata": {
-                "name": "hello-route-${IDENTIFIER}"
+                "name": "hello-route-example-${IDENTIFIER}"
             },
             "spec": {
                 "host": "${APPLICATION_DOMAIN}",
