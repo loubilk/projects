@@ -21,6 +21,8 @@ mode=""
 interval="10"
 iteration="1"
 options="none"
+origin_master="/etc/sysconfig/origin-master"
+ose_openshift_master="/etc/sysconfig/atomic-openshift-master"
 
 # Functions
 usage() {
@@ -143,6 +145,12 @@ tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 
 case "$mode" in
     install)
+        if [[ -e $ose_openshift_master || -e $origin_master ]]; then
+            check_install_rpm $tool_package
+        else
+            printf "This machine is not Openshift master, it is not possible to start $tool on this machine\n"
+            exit 1
+        fi
     ;;
     start)
         mkdir -p $tool_output_dir
