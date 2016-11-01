@@ -35,7 +35,6 @@ The following options are available:
 
     --install                   install this perf tool
     --start|stop|postprocess    start/stop/postprocess the data collection
-    --postproceess-script       run this user-provided script when postprocessing this tool
     --collect                   collect mode, get the actual HAProxy statistics
     --iteration=int             the iteration (required)
     --group=str                 the perftool group (required)
@@ -53,7 +52,7 @@ haproxy_data_collect() {
         for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
             cmd="echo 'show stat' | socat - UNIX-CONNECT:/var/lib/haproxy/run/haproxy.sock"
  
-            date '+# %Y-%d-%m %H:%M:%S' >> $tool_output_dir/${router}.csv
+            date '+timestamp: %s.%N' >> $tool_output_dir/${router}.csv
             oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "$cmd" >> $tool_output_dir/${router}.csv &
             sleep $interval
         done
@@ -119,13 +118,6 @@ while true; do
             shift
         fi
     ;;
-    --postprocess-script)
-        shift
-        if [ -n "$1" ]; then
-            postprocess_script="$1"
-            shift
-        fi
-    ;;
     --)
         shift
         break
@@ -170,10 +162,7 @@ case "$mode" in
     postprocess)
         debug_log "postprocessing $script_name"
         pushd $tool_output_dir >/dev/null
-        if [ -e "$postprocess_script" ]; then
-            chmod +x $postprocess_script
-            $postprocess_script 2>&1 >postprocess-output.txt
-        fi
+        $script_path/postprocess/$script_name-postprocess "$tool_output_dir" || exit $?
         popd >/dev/null
     ;;
     collect)
