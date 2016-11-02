@@ -18,6 +18,7 @@ tool=$script_name
 group=default
 dir=""
 mode=""
+counters_clear_all=""
 interval="10"
 iteration="1"
 options="none"
@@ -36,6 +37,7 @@ The following options are available:
     --install                   install this perf tool
     --start|stop|postprocess    start/stop/postprocess the data collection
     --collect                   collect mode, get the actual HAProxy statistics
+    --counters-clear-all        clear all HAProxy counters at tool start
     --iteration=int             the iteration (required)
     --group=str                 the perftool group (required)
     --dir=str                   directory to store data collection (required)
@@ -56,11 +58,22 @@ haproxy_data_collect() {
             oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "$cmd" >> $tool_output_dir/${router}.csv &
             sleep $interval
         done
-     done
+        sleep 1	# just in case there are no routers
+    done
+}
+
+haproxy_counters_clear() {
+    local router_namespace=default
+
+    for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
+        cmd="echo 'clear counters all' | socat - UNIX-CONNECT:/var/lib/haproxy/run/haproxy.sock"
+        oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "$cmd" >> $tool_output_dir/${router}.csv &
+    done
+    wait
 }
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,collect,postprocess-script:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,collect,counters-clear-all,postprocess-script:" -n "getopt.sh" -- "$@")
 
 if [ $? -ne 0 ]; then
     usage 1
@@ -88,6 +101,10 @@ while true; do
     ;;
     --collect)
         mode="collect"
+        shift
+    ;;
+    --counters-clear-all)
+        counters_clear_all="Y"
         shift
     ;;
     -d|--dir)
@@ -150,6 +167,7 @@ case "$mode" in
         echo "${BASH_SOURCE} --dir=${dir} --interval=${interval} --collect" >$tool_cmd_file
         chmod +x $tool_cmd_file
         debug_log "$script_name: running $tool_cmd"
+        test "${counters_clear_all}" = Y && haproxy_counters_clear
         $tool_cmd_file >"$tool_stdout_file" 2>"$tool_stderr_file" & echo $! >$tool_pid_file
         popd >/dev/null
         wait
