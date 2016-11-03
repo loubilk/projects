@@ -24,6 +24,7 @@
                 }
             },
             "spec": {
+                "type": "NodePort",
                 "ports": [
                     {
                         "name": "web",

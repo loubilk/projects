@@ -21,6 +21,7 @@
                 "selector": {
                     "name": "hello-openshift-${IDENTIFIER}"
                 },
+                "type": "NodePort",
                 "ports": [
                     {
                         "name": "first",
