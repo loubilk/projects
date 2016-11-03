@@ -1,11 +1,13 @@
 projects:
   - num: 1
-    basename: arp
+    basename: hello-openshift
     ifexists: delete
     tuning: default
     templates:
-      - num: 100
-        file: ./content/router/router-arp_stress.json
+      - num: 1
+        file: ./projects/haproxy/apps/hello-openshift/hello-openshift.json
+        parameters:
+         - REPLICAS: 10
 
 #  - num: 2
 #    basename: cakephp-mysql
@@ -34,6 +36,6 @@ tuningsets:
     templates:
       stepping:
         stepsize: 5
-        pause: 10 s
+        pause: 1 s
       rate_limit:
         delay: 5 s
