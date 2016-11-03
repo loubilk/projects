@@ -6,16 +6,16 @@
     },
     "objects": [
         {
-            "kind": "ReplicationController", 
-            "apiVersion": "v1", 
+            "kind": "ReplicationController",
+            "apiVersion": "v1",
             "metadata": {
                 "name": "hello-openshift-${IDENTIFIER}"
             },
             "spec": {
-                "replicas": "${REPLICAS}", 
+                "replicas": "${REPLICAS}",
                 "template": {
                     "spec": {
-                        "restartPolicy": "Always", 
+                        "restartPolicy": "Always",
                         "nodeSelector": {
                             "placement": "apps"
                         },
@@ -61,13 +61,13 @@
                                 "terminationMessagePath": "/dev/termination-log"
                             }
                         ]
-                    }, 
+                    },
                     "metadata": {
                         "labels": {
                             "name": "hello-openshift-${IDENTIFIER}"
                         }
                     }
-                }, 
+                },
                 "selector": {
                     "name": "hello-openshift-${IDENTIFIER}"
                 }

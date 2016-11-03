@@ -6,16 +6,16 @@
     },
     "objects": [
         {
-            "kind": "ReplicationController", 
-            "apiVersion": "v1", 
+            "kind": "ReplicationController",
+            "apiVersion": "v1",
             "metadata": {
                 "name": "hello-openshift-${IDENTIFIER}"
             },
             "spec": {
-                "replicas": "${REPLICAS}", 
+                "replicas": "${REPLICAS}",
                 "template": {
                     "spec": {
-                        "restartPolicy": "Always", 
+                        "restartPolicy": "Always",
                         "nodeSelector": {
                             "placement": "apps"
                         },
@@ -61,13 +61,13 @@
                                 "terminationMessagePath": "/dev/termination-log"
                             }
                         ]
-                    }, 
+                    },
                     "metadata": {
                         "labels": {
                             "name": "hello-openshift-${IDENTIFIER}"
                         }
                     }
-                }, 
+                },
                 "selector": {
                     "name": "hello-openshift-${IDENTIFIER}"
                 }
@@ -122,16 +122,16 @@
             "value": "8080"
         },
         {
-            "name": "REPLICAS",
-            "displayName": "Number of replicas",
-            "description": "Start with the number of replicas.",
-            "value": "1"
-        },
-        {
             "name": "APPLICATION_DOMAIN",
             "displayName": "Application Hostname",
             "description": "The exposed hostname that will route to the hello-openshift-* service, if left blank a value will be defaulted.",
             "value": ""
+        },
+        {
+            "name": "REPLICAS",
+            "displayName": "Number of replicas",
+            "description": "Start with the number of replicas.",
+            "value": "1"
         },
         {
             "name": "IDENTIFIER",
