@@ -20,7 +20,7 @@ projects:
         parameters:
          - REPLICAS: 2
 
-  # Assumes `apps/django-postgresql/django-postgresql-build.json' run in openshift namespace
+  # Assumes `apps/django-postgresql/django-build.json' run in openshift namespace
   - num: 1
     basename: django-postgresql
     ifexists: delete
@@ -31,7 +31,7 @@ projects:
         parameters:
          - REPLICAS: 2
 
-  # Assumes `apps/tomcat8-mongodb/tomcat8-mongodb-build.json' run in openshift namespace
+  # Assumes `apps/tomcat8-mongodb/tomcat8-build.json' run in openshift namespace
   - num: 1
     basename: tomcat8-mongodb
     ifexists: delete
