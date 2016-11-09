@@ -288,12 +288,25 @@ main()
   exec 1>&3 3>&- 2>&4 4>&-
 }
 
-for line_length in 256 512 1024 2048
+#for line_length in 256 512 1024 2048
+#do
+#  for delay in 1000000 100000 10000 1000 100 0
+#  do
+#    echo "Duration=${tmout}s; line length=${line_length}; delay=${delay}us"
+#    define_global_vars 300 $line_length $delay no_limits
+#    main
+#    echo "Sleeping ${pause_secs}s"
+#    sleep ${pause_secs}
+#  done
+#done
+
+for line_length in 1024
 do
-  for delay in 1000000 100000 10000 1000 100 0
+#  for delay in 100000
+  for delay in 1000000 100000 10000 1000 100 10 0
   do
-    echo "Duration=${tmout}; line length=${line_length}; delay=${delay}us"
     define_global_vars 300 $line_length $delay no_limits
+    echo "Duration=${tmout}s; line length=${line_length}; delay=${delay}us"
     main
     echo "Sleeping ${pause_secs}s"
     sleep ${pause_secs}

@@ -18,6 +18,7 @@ while read -u9 -r host
 do
   test "${host:0:1}" = "#" && continue
   test "${host}" = "${hostname}" && continue	# current host already registered locally
+  echo "$host"
   echo "rm -rf ${pbench_agent_dir}" | ssh -T ${host}
 
   pbench-register-tool-set --remote=$host --interval=3
