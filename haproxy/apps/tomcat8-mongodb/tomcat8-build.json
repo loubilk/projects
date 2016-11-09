@@ -131,7 +131,7 @@
         {
             "displayName": "Application Name",
             "name": "APPLICATION_NAME",
-            "value": "jws-app",
+            "value": "jws-app-example",
             "required": true
         },
         {

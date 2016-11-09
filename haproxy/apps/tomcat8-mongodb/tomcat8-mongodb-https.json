@@ -42,6 +42,13 @@
             "required": false
         },
         {
+            "description": "Custom hostname for https service route.  Leave blank for default hostname, e.g.: secure-<application-name>-<project>.<default-domain-suffix>",
+            "displayName": "HTTPS Hostname",
+            "name": "HOSTNAME_HTTPS",
+            "value": "",
+            "required": false
+        },
+        {
             "description": "Git source URI for application",
             "displayName": "Source Repository URL",
             "name": "SOURCE_REPOSITORY_URL",
@@ -74,6 +81,33 @@
             "name": "DB_DATABASE",
             "value": "root",
             "required": true
+        },
+        {
+            "description": "The name of the secret containing the certificate files",
+            "displayName": "HTTPS Secret",
+            "name": "JWS_HTTPS_SECRET",
+            "value": "jws-app-secret",
+            "required": true
+        },
+        {
+            "description": "The name of the certificate file within the secret",
+            "displayName": "HTTPS Certificate",
+            "name": "JWS_HTTPS_CERTIFICATE",
+            "value": "server.crt",
+            "required": false
+        },
+        {
+            "description": "The name of the certificate key file within the secret",
+            "displayName": "HTTPS Certificate Key",
+            "name": "JWS_HTTPS_CERTIFICATE_KEY",
+            "value": "server.key",
+            "required": false
+        },
+        {
+            "displayName": "HTTPS Certificate Password",
+            "name": "JWS_HTTPS_CERTIFICATE_PASSWORD",
+            "value": "",
+            "required": false
         },
         {
             "description": "Sets xa-pool/min-pool-size for the configured datasource.",
@@ -234,6 +268,31 @@
             "kind": "Service",
             "apiVersion": "v1",
             "spec": {
+                "type": "NodePort",
+                "ports": [
+                    {
+                        "port": 8443,
+                        "targetPort": 8443
+                    }
+                ],
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}"
+                }
+            },
+            "metadata": {
+                "name": "secure-${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "The web server's https port."
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "spec": {
                 "ports": [
                     {
                         "port": 27017,
@@ -271,6 +330,29 @@
                 "host": "${HOSTNAME_HTTP}",
                 "to": {
                     "name": "${APPLICATION_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "id": "${APPLICATION_NAME}-https",
+            "metadata": {
+                "name": "secure-${APPLICATION_NAME}",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                },
+                "annotations": {
+                    "description": "Route for application's https service."
+                }
+            },
+            "spec": {
+                "host": "${HOSTNAME_HTTPS}",
+                "to": {
+                    "name": "secure-${APPLICATION_NAME}"
+                },
+                "tls": {
+                    "termination": "passthrough"
                 }
             }
         },
@@ -405,6 +487,13 @@
                                         ]
                                     }
                                 },
+                                "volumeMounts": [
+                                    {
+                                        "name": "jws-certificate-volume",
+                                        "mountPath": "/etc/jws-secret-volume",
+                                        "readOnly": true
+                                    }
+                                ],
                                 "ports": [
                                     {
                                         "name": "jolokia",
@@ -414,6 +503,11 @@
                                     {
                                         "name": "http",
                                         "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "name": "https",
+                                        "containerPort": 8443,
                                         "protocol": "TCP"
                                     }
                                 ],
@@ -455,6 +549,22 @@
                                         "value": "${DB_TX_ISOLATION}"
                                     },
                                     {
+                                        "name": "JWS_HTTPS_CERTIFICATE_DIR",
+                                        "value": "/etc/jws-secret-volume"
+                                    },
+                                    {
+                                        "name": "JWS_HTTPS_CERTIFICATE",
+                                        "value": "${JWS_HTTPS_CERTIFICATE}"
+                                    },
+                                    {
+                                        "name": "JWS_HTTPS_CERTIFICATE_KEY",
+                                        "value": "${JWS_HTTPS_CERTIFICATE_KEY}"
+                                    },
+                                    {
+                                        "name": "JWS_HTTPS_CERTIFICATE_PASSWORD",
+                                        "value": "${JWS_HTTPS_CERTIFICATE_PASSWORD}"
+                                    },
+                                    {
                                         "name": "JWS_ADMIN_USERNAME",
                                         "value": "${JWS_ADMIN_USERNAME}"
                                     },
@@ -467,6 +577,14 @@
                                     "limits": {
                                         "memory": "${MEMORY_LIMIT}"
                                     }
+                                }
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "jws-certificate-volume",
+                                "secret": {
+                                    "secretName": "${JWS_HTTPS_SECRET}"
                                 }
                             }
                         ]
