@@ -157,6 +157,9 @@
                         }
                     },
                     "spec": {
+                        "nodeSelector": {
+                            "placement": "apps"
+                        },
                         "containers": [
                             {
                                 "name": "django-psql-example",
@@ -289,6 +292,9 @@
                         }
                     },
                     "spec": {
+                        "nodeSelector": {
+                            "placement": "apps"
+                        },
                         "containers": [
                             {
                                 "name": "postgresql",

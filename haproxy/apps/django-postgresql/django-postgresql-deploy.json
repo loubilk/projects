@@ -2,23 +2,23 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "cakephp-mysql-example",
+        "name": "django-psql-example",
         "annotations": {
-            "description": "An example CakePHP application with a MySQL database",
-            "source": "https://github.com/openshift/online/blob/master/templates/examples/cakephp-mysql.json",
-            "tags": "quickstart,php,cakephp,mysql",
-            "iconClass": "icon-php"
+            "description": "An example Django application with a PostgreSQL database",
+            "source": "https://github.com/openshift/online/blob/master/templates/examples/django-postgresql.json",
+            "tags": "quickstart,python,django,postgresql",
+            "iconClass": "icon-python"
         }
     },
     "labels": {
-        "template": "cakephp-mysql-example"
+        "template": "django-psql-example"
     },
     "objects": [
         {
             "kind": "Service",
             "apiVersion": "v1",
             "metadata": {
-                "name": "cakephp-mysql-example",
+                "name": "django-psql-example",
                 "annotations": {
                     "description": "Exposes and load balances the application pods"
                 }
@@ -33,7 +33,7 @@
                     }
                 ],
                 "selector": {
-                    "name": "cakephp-mysql-example"
+                    "name": "django-psql-example"
                 }
             }
         },
@@ -41,99 +41,28 @@
             "kind": "Route",
             "apiVersion": "v1",
             "metadata": {
-                "name": "cakephp-mysql-example"
+                "name": "django-psql-example"
             },
             "spec": {
                 "host": "${APPLICATION_DOMAIN}",
                 "to": {
                     "kind": "Service",
-                    "name": "cakephp-mysql-example-${IDENTIFIER}"
+                    "name": "django-psql-example"
                 }
-            }
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "cakephp-mysql-example",
-                "annotations": {
-                    "description": "Keeps track of changes in the application image"
-                }
-            }
-        },
-        {
-            "kind": "BuildConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "cakephp-mysql-example",
-                "annotations": {
-                    "description": "Defines how to build the application"
-                }
-            },
-            "spec": {
-                "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "${SOURCE_REPOSITORY_URL}",
-                        "ref": "${SOURCE_REPOSITORY_REF}"
-                    },
-                    "contextDir": "${CONTEXT_DIR}"
-                },
-                "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "namespace": "openshift",
-                            "name": "php:5.6"
-                        }
-                    }
-                },
-                "output": {
-                    "to": {
-                        "kind": "ImageStreamTag",
-                        "name": "cakephp-mysql-example:latest"
-                    }
-                },
-                "triggers": [
-                    {
-                        "type": "ImageChange"
-                    },
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "GitHub",
-                        "github": {
-                            "secret": "${GITHUB_WEBHOOK_SECRET}"
-                        }
-                    }
-                ]
             }
         },
         {
             "kind": "DeploymentConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "cakephp-mysql-example",
+                "name": "django-psql-example",
                 "annotations": {
                     "description": "Defines how to deploy the application server"
                 }
             },
             "spec": {
                 "strategy": {
-                    "type": "Rolling",
-                    "recreateParams": {
-                        "pre": {
-                            "failurePolicy": "Retry",
-                            "execNewPod": {
-                                "command": [
-                                    "./migrate-database.sh"
-                                ],
-                                "containerName": "cakephp-mysql-example"
-                            }
-                        }
-                    }
+                    "type": "Rolling"
                 },
                 "triggers": [
                     {
@@ -141,11 +70,12 @@
                         "imageChangeParams": {
                             "automatic": true,
                             "containerNames": [
-                                "cakephp-mysql-example"
+                                "django-psql-example"
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
-                                "name": "cakephp-mysql-example:latest"
+                                "name": "django-psql-example:latest",
+                                "namespace": "openshift"
                             }
                         }
                     },
@@ -155,13 +85,13 @@
                 ],
                 "replicas": "${REPLICAS}",
                 "selector": {
-                    "name": "cakephp-mysql-example"
+                    "name": "django-psql-example"
                 },
                 "template": {
                     "metadata": {
-                        "name": "cakephp-mysql-example",
+                        "name": "django-psql-example",
                         "labels": {
-                            "name": "cakephp-mysql-example"
+                            "name": "django-psql-example"
                         }
                     },
                     "spec": {
@@ -170,8 +100,8 @@
                         },
                         "containers": [
                             {
-                                "name": "cakephp-mysql-example",
-                                "image": "cakephp-mysql-example",
+                                "name": "django-psql-example",
+                                "image": "django-psql-example",
                                 "ports": [
                                     {
                                         "containerPort": 8080
@@ -181,7 +111,7 @@
                                     "timeoutSeconds": 3,
                                     "initialDelaySeconds": 3,
                                     "httpGet": {
-                                        "path": "/health.php",
+                                        "path": "/health",
                                         "port": 8080
                                     }
                                 },
@@ -189,7 +119,7 @@
                                     "timeoutSeconds": 3,
                                     "initialDelaySeconds": 30,
                                     "httpGet": {
-                                        "path": "/",
+                                        "path": "/health",
                                         "port": 8080
                                     }
                                 },
@@ -215,20 +145,12 @@
                                         "value": "${DATABASE_PASSWORD}"
                                     },
                                     {
-                                        "name": "CAKEPHP_SECRET_TOKEN",
-                                        "value": "${CAKEPHP_SECRET_TOKEN}"
+                                        "name": "APP_CONFIG",
+                                        "value": "${APP_CONFIG}"
                                     },
                                     {
-                                        "name": "CAKEPHP_SECURITY_SALT",
-                                        "value": "${CAKEPHP_SECURITY_SALT}"
-                                    },
-                                    {
-                                        "name": "CAKEPHP_SECURITY_CIPHER_SEED",
-                                        "value": "${CAKEPHP_SECURITY_CIPHER_SEED}"
-                                    },
-                                    {
-                                        "name": "OPCACHE_REVALIDATE_FREQ",
-                                        "value": "${OPCACHE_REVALIDATE_FREQ}"
+                                        "name": "DJANGO_SECRET_KEY",
+                                        "value": "${DJANGO_SECRET_KEY}"
                                     }
                                 ],
                                 "resources": {
@@ -254,9 +176,9 @@
             "spec": {
                 "ports": [
                     {
-                        "name": "mysql",
-                        "port": 3306,
-                        "targetPort": 3306
+                        "name": "postgresql",
+                        "port": 5432,
+                        "targetPort": 5432
                     }
                 ],
                 "selector": {
@@ -283,12 +205,12 @@
                         "imageChangeParams": {
                             "automatic": true,
                             "containerNames": [
-                                "mysql"
+                                "postgresql"
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
                                 "namespace": "openshift",
-                                "name": "mysql:5.6"
+                                "name": "postgresql:9.4"
                             }
                         }
                     },
@@ -313,50 +235,50 @@
                         },
                         "containers": [
                             {
-                                "name": "mysql",
-                                "image": "mysql",
+                                "name": "postgresql",
+                                "image": "postgresql",
                                 "ports": [
                                     {
-                                        "containerPort": 3306
+                                        "containerPort": 5432
+                                    }
+                                ],
+                                "env": [
+                                    {
+                                        "name": "POSTGRESQL_USER",
+                                        "value": "${DATABASE_USER}"
+                                    },
+                                    {
+                                        "name": "POSTGRESQL_PASSWORD",
+                                        "value": "${DATABASE_PASSWORD}"
+                                    },
+                                    {
+                                        "name": "POSTGRESQL_DATABASE",
+                                        "value": "${DATABASE_NAME}"
                                     }
                                 ],
                                 "readinessProbe": {
                                     "timeoutSeconds": 1,
                                     "initialDelaySeconds": 5,
                                     "exec": {
-                                        "command": [ "/bin/sh", "-i", "-c", "MYSQL_PWD='${DATABASE_PASSWORD}' mysql -h 127.0.0.1 -u ${DATABASE_USER} -D ${DATABASE_NAME} -e 'SELECT 1'" ]
+                                        "command": [ "/bin/sh", "-i", "-c", "psql -h 127.0.0.1 -U ${POSTGRESQL_USER} -q -d ${POSTGRESQL_DATABASE} -c 'SELECT 1'"]
                                     }
                                 },
                                 "livenessProbe": {
                                     "timeoutSeconds": 1,
                                     "initialDelaySeconds": 30,
                                     "tcpSocket": {
-                                        "port": 3306
+                                        "port": 5432
                                     }
                                 },
-                                "env": [
-                                    {
-                                        "name": "MYSQL_USER",
-                                        "value": "${DATABASE_USER}"
-                                    },
-                                    {
-                                        "name": "MYSQL_PASSWORD",
-                                        "value": "${DATABASE_PASSWORD}"
-                                    },
-                                    {
-                                        "name": "MYSQL_DATABASE",
-                                        "value": "${DATABASE_NAME}"
-                                    }
-                                ],
                                 "resources": {
                                     "limits": {
-                                        "memory": "${MEMORY_MYSQL_LIMIT}"
+                                        "memory": "${MEMORY_POSTGRESQL_LIMIT}"
                                     }
                                 },
                                 "volumeMounts": [
                                     {
                                         "name": "data",
-                                        "mountPath": "/var/lib/mysql/data"
+                                        "mountPath": "/var/lib/pgsql/data"
                                     }
                                 ]
                             }
@@ -365,7 +287,7 @@
                             {
                                 "name": "data",
                                 "emptyDir": {}
-                            } 
+                            }
                         ]
                     }
                 }
@@ -376,61 +298,31 @@
         {
             "name": "MEMORY_LIMIT",
             "displayName": "Memory Limit",
-            "description": "Maximum amount of memory the CakePHP container can use.",
+            "description": "Maximum amount of memory the Django container can use.",
             "value": "512Mi"
         },
         {
-            "name": "MEMORY_MYSQL_LIMIT",
-            "displayName": "Memory Limit (MySQL)",
-            "description": "Maximum amount of memory the MySQL container can use.",
+            "name": "MEMORY_POSTGRESQL_LIMIT",
+            "displayName": "Memory Limit (PostgreSQL)",
+            "description": "Maximum amount of memory the PostgreSQL container can use.",
             "value": "512Mi"
-        },
-        {
-            "name": "VOLUME_CAPACITY",
-            "displayName": "Volume Capacity",
-            "description": "Volume space available for data, e.g. 512Mi, 2Gi",
-            "value": "1Gi",
-            "required": true
-        },
-        {
-            "name": "SOURCE_REPOSITORY_URL",
-            "displayName": "Git Repository URL",
-            "description": "The URL of the repository with your application source code.",
-            "value": "https://github.com/redhat-performance/cakephp-ex.git"
-        },
-        {
-            "name": "SOURCE_REPOSITORY_REF",
-            "displayName": "Git Reference",
-            "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch."
-        },
-        {
-            "name": "CONTEXT_DIR",
-            "displayName": "Context Directory",
-            "description": "Set this to the relative path to your project if it is not in the root of your repository."
         },
         {
             "name": "APPLICATION_DOMAIN",
             "displayName": "Application Hostname",
-            "description": "The exposed hostname that will route to the CakePHP service, if left blank a value will be defaulted.",
+            "description": "The exposed hostname that will route to the Django service, if left blank a value will be defaulted.",
             "value": ""
-        },
-        {
-            "name": "GITHUB_WEBHOOK_SECRET",
-            "displayName": "GitHub Webhook Secret",
-            "description": "A secret string used to configure the GitHub webhook.",
-            "generate": "expression",
-            "from": "[a-zA-Z0-9]{40}"
         },
         {
             "name": "DATABASE_SERVICE_NAME",
             "displayName": "Database Service Name",
-            "value": "mysql"
+            "value": "postgresql"
         },
         {
             "name": "DATABASE_ENGINE",
             "displayName": "Database Engine",
             "description": "Database engine: postgresql, mysql or sqlite (default).",
-            "value": "mysql"
+            "value": "postgresql"
         },
         {
             "name": "DATABASE_NAME",
@@ -439,41 +331,26 @@
         },
         {
             "name": "DATABASE_USER",
-            "displayName": "Database User",
-            "value": "cakephp"
+            "displayName": "Database Username",
+            "value": "django"
         },
         {
             "name": "DATABASE_PASSWORD",
-            "displayName": "Database Password",
+            "displayName": "Database User Password",
             "generate": "expression",
             "from": "[a-zA-Z0-9]{16}"
         },
         {
-            "name": "CAKEPHP_SECRET_TOKEN",
-            "displayName": "CakePHP secret token",
+            "name": "APP_CONFIG",
+            "displayName": "Application Configuration File Path",
+            "description": "Relative path to Gunicorn configuration file (optional)."
+        },
+        {
+            "name": "DJANGO_SECRET_KEY",
+            "displayName": "Djange Secret Key",
             "description": "Set this to a long random string.",
             "generate": "expression",
             "from": "[\\w]{50}"
-        },
-        {
-            "name": "CAKEPHP_SECURITY_SALT",
-            "displayName": "CakePHP Security Salt",
-            "description": "Security salt for session hash.",
-            "generate": "expression",
-            "from": "[a-zA-Z0-9]{40}"
-        },
-        {
-            "name": "CAKEPHP_SECURITY_CIPHER_SEED",
-            "displayName": "CakePHP Security Cipher Seed",
-            "description": "Security cipher seed for session hash.",
-            "generate": "expression",
-            "from": "[0-9]{30}"
-        },
-        {
-            "name": "OPCACHE_REVALIDATE_FREQ",
-            "displayName": "OPcache Revalidation Frequency",
-            "description": "How often to check script timestamps for updates, in seconds. 0 will result in OPcache checking for updates on every request.",
-            "value": "2"
         },
         {
             "name": "REPLICAS",
