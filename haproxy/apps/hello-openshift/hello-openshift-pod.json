@@ -25,6 +25,10 @@
                             {
                                 "name": "PORT",
                                 "value": "${PORT}"
+                            },
+                            {
+                                "name": "RESPONSE",
+                                "value": "${RESPONSE}"
                             }
                         ],
                         "image": "openshift/hello-openshift",
@@ -70,6 +74,12 @@
             "displayName": "Listen on PORT",
             "description": "Tells the container to start httpd server on port PORT",
             "value": "8080"
+        },
+        {   
+            "name": "RESPONSE",
+            "displayName": "Response to send back",
+            "description": "HTTP response to send back.",
+            "value": "1"
         },
         {
             "name": "IDENTIFIER",

@@ -25,6 +25,10 @@
                                     {
                                         "name": "PORT",
                                         "value": "${PORT}"
+                                    },
+                                    {
+                                        "name": "RESPONSE",
+                                        "value": "${RESPONSE}"
                                     }
                                 ],
                                 "image": "openshift/hello-openshift",
@@ -85,6 +89,12 @@
             "name": "REPLICAS",
             "displayName": "Number of replicas",
             "description": "Start with the number of replicas.",
+            "value": "1"
+        },
+        {   
+            "name": "RESPONSE",
+            "displayName": "Response to send back",
+            "description": "HTTP response to send back.",
             "value": "1"
         },
         {
