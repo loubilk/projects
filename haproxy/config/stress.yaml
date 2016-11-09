@@ -5,16 +5,14 @@ projects:
     tuning: default
     templates:
       - num: 1
-        file: ./content/quickstarts/stress/stress-pod.json
+        file: projects/haproxy/stress/stress-pod.json
         parameters: 
-         - RUN: "jmeter"
+         - RUN: "vegeta"
          - ROUTER_IP: "172.31.1.108"
          - TARGET_HOST: "django-psql-example-django-postgresql0.router.default.svc.cluster.local" 
          - JMETER_SIZE: "1024"
-         - JMETER_RAMP: "0"
-         - RUN_TIME: "120"
-         - JMETER_TPS: "300"      # 5 too low, router crashes when using ConstantThroughputTimer
-         - JVM_ARGS: "\"-Xms4096m -Xmx8192m\""
+         - RUN_TIME: "60"
+         - VEGETA_RPS: "3000"
 
 tuningsets:
   - name: default

@@ -1,41 +1,44 @@
 projects:
-  - num: 1
+  - num: 2
     basename: hello-openshift
     ifexists: delete
     tuning: default
     templates:
-      - num: 1
+      - num: 100          # maximum 100 per project supported (with REPLICAS: 1)
         file: ./projects/haproxy/apps/hello-openshift/hello-openshift.json
         parameters:
-         - REPLICAS: 2
+         - REPLICAS: 1
 
+  # Assumes `apps/cakephp-mysql/cakephp-build.json' was run in openshift namespace
   - num: 1
     basename: cakephp-mysql
     ifexists: delete
     tuning: default
     templates:
-      - num: 1
-        file: ./projects/haproxy/apps/cakephp-mysql/cakephp-mysql.json
+      - num: 1          # do not increase, currently 1 app per project supported
+        file: ./projects/haproxy/apps/cakephp-mysql/cakephp-mysql-deploy.json
         parameters:
          - REPLICAS: 2
 
+  # Assumes `apps/django-postgresql/django-postgresql-build.json' run in openshift namespace
   - num: 1
     basename: django-postgresql
     ifexists: delete
     tuning: default
     templates:
-      - num: 1
-        file: ./projects/haproxy/apps/django-postgresql/django-postgresql.json
+      - num: 1          # do not increase, currently 1 app per project supported
+        file: ./projects/haproxy/apps/django-postgresql/django-postgresql-deploy.json
         parameters:
          - REPLICAS: 2
 
+  # Assumes `apps/tomcat8-mongodb/tomcat8-mongodb-build.json' run in openshift namespace
   - num: 1
     basename: tomcat8-mongodb
     ifexists: delete
     tuning: default
     templates:
-      - num: 1
-        file: ./projects/haproxy/apps/tomcat8-mongodb/tomcat8-mongodb.json
+      - num: 1          # do not increase, currently 1 app per project supported
+        file: ./projects/haproxy/apps/tomcat8-mongodb/tomcat8-mongodb-deploy.json
         parameters:
          - REPLICAS: 2
 

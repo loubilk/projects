@@ -59,6 +59,10 @@
                                 "value": "${JMETER_TPS}"
                             },
                             {
+                                "name": "VEGETA_RPS",
+                                "value": "${VEGETA_RPS}"
+                            },
+                            {
                                 "name": "PBENCH_DIR",
 				"value": "${PBENCH_DIR}"
                             },
@@ -156,6 +160,12 @@
 	    "displayName": "JMeter throughput",
 	    "description": "Thread throuput rate for JMeter",
 	    "value": "60"
+	},
+	{
+	    "name": "VEGETA_RPS",
+	    "displayName": "Vegeta requests/second",
+	    "description": "Vegeta HTTP load testing tool requests per second (per all targets combined).",
+	    "value": "100"
 	},
 	{
 	    "name": "ROUTER_IP",

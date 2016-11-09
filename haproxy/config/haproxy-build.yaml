@@ -1,0 +1,40 @@
+# Prepare imagestreams and buildconfigs in openshift namespace
+projects:
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1 
+        file: ./projects/haproxy/apps/cakephp-mysql/cakephp-build.json
+
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1
+        file: ./projects/haproxy/apps/django-postgresql/django-build.json
+
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1
+        file: ./projects/haproxy/apps/tomcat8-mongodb/tomcat8-build.json
+
+tuningsets:
+  - name: default
+    pods:
+      stepping:
+        stepsize: 5
+        pause: 0 min
+      rate_limit:
+        delay: 0 ms
+    templates:
+      stepping:
+        stepsize: 5
+        pause: 1 s
+      rate_limit:
+        delay: 5 s
