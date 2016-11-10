@@ -196,6 +196,7 @@ sub html_router_index {
     my $graph_name;
     foreach my $key (@haproxy_show) {
         html_ln($fh, "${router_name}-${key}.html", graph_name($key));
+        print $fh "<br>\n";
     }
 }
 
@@ -204,7 +205,7 @@ sub html_ln {
     my $href = 'index.html'; $href = shift if @_;
     my $title = 'title'; $title = shift if @_;
 
-    print $fh "    <a href=\"$href\">$title</a><br>\n";
+    print $fh "    <a href=\"$href\">$title</a>";
 }
 
 sub e2z {
@@ -232,6 +233,9 @@ foreach my $csv (@router_csv) {
     open(ROUTER_CSV, "$csv") || die "could not find `$csv'\n"; 
     open(my $router_index_fh, ">$router_index") || die "could not open `$router_index' for writing\n";
     html_ln($index_page_fh, "${router_name}.html", $router_name);
+    html_ln($index_page_fh, "${router_name}-start.log", "log before test");
+    html_ln($index_page_fh, "${router_name}-stop.log", "log after test");
+    print $index_page_fh "<br>\n";
     html_head($router_index_fh, $router_name);
     html_router_index($router_index_fh, $router_name);
     while (my $line = <ROUTER_CSV>) {

@@ -24,6 +24,7 @@ iteration="1"
 options="none"
 origin_master="/etc/sysconfig/origin-master"
 ose_openshift_master="/etc/sysconfig/atomic-openshift-master"
+router_namespace=default
 
 # Functions
 usage() {
@@ -48,8 +49,6 @@ _USAGE_
 }
 
 haproxy_data_collect() {
-    local router_namespace=default
-
     while true ; do
         for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
             cmd="echo 'show stat' | socat - UNIX-CONNECT:/var/lib/haproxy/run/haproxy.sock"
@@ -63,11 +62,19 @@ haproxy_data_collect() {
 }
 
 haproxy_counters_clear() {
-    local router_namespace=default
-
     for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
         cmd="echo 'clear counters all' | socat - UNIX-CONNECT:/var/lib/haproxy/run/haproxy.sock"
         oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "$cmd" >> $tool_output_dir/${router}.csv &
+    done
+    wait
+}
+
+router_logs_collect() {
+    local tag=$1
+    # watch for reloads
+    oc get pods -n ${router_namespace} | grep '^router-' >> $tool_output_dir/oc_get_pods-router-$tag.log &
+    for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
+        oc logs "${router}" >> $tool_output_dir/${router}-$tag.log &
     done
     wait
 }
@@ -169,10 +176,12 @@ case "$mode" in
         debug_log "$script_name: running $tool_cmd"
         test "${counters_clear_all}" = Y && haproxy_counters_clear
         $tool_cmd_file >"$tool_stdout_file" 2>"$tool_stderr_file" & echo $! >$tool_pid_file
+        router_logs_collect $mode
         popd >/dev/null
         wait
     ;;
     stop)
+        router_logs_collect $mode
         pid=`cat $tool_pid_file`
         debug_log "stopping $script_name"
         kill $pid && /bin/rm -f $tool_pid_file
