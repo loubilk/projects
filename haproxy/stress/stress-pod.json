@@ -73,6 +73,10 @@
                             {
                                 "name": "GUN",
 				"value": "${GUN}"
+                            },
+                            {
+                                "name": "IDENTIFIER",
+				"value": "${IDENTIFIER}"
                             }
                         ],
                         "image": "jmencak/centos-stress:latest",

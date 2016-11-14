@@ -8,11 +8,8 @@ projects:
         file: projects/haproxy/stress/stress-pod.json
         parameters: 
          - RUN: "vegeta"
-         - ROUTER_IP: "172.31.1.108"
-         - TARGET_HOST: "django-psql-example-django-postgresql0.router.default.svc.cluster.local" 
-         - JMETER_SIZE: "1024"
-         - RUN_TIME: "60"
-         - VEGETA_RPS: "3000"
+         - RUN_TIME: "600"
+         - GUN: "ip-172-31-42-69.us-west-2.compute.internal"
 
 tuningsets:
   - name: default
