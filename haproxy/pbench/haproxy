@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Example usage: pbench-register-tool --name=haproxy -- --interval=10
+
 script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
