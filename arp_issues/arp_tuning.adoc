@@ -7,7 +7,7 @@ to allow more entries in the ARP cache.
 
 === Issue description
 
-In such large deployments problem manifests itself by kernel messages 
+In such large deployments the problem manifests itself by kernel messages 
 similar to the following ones:
 ```
 [ 1738.811139] net_ratelimit: 1045 callbacks suppressed
@@ -35,5 +35,5 @@ net.ipv4.neigh.default.gc_thresh2 = 32768
 net.ipv4.neigh.default.gc_thresh3 = 65536
 ```
 
-To make these settings permanent across reboots these values need to be entered 
-in ```/etc/sysctl.conf``` and loaded into the current environment by ```sysctl -p```.
+To make these settings permanent across reboots it is advised to create a 
+https://access.redhat.com/solutions/1305833[custom tuned profile].
