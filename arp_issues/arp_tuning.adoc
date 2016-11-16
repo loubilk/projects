@@ -1,0 +1,39 @@
+== ARP cache tuning for large scale deployments
+
+In OCP deployments with large numbers of routes (greater than 
+the value of ```net.ipv4.neigh.default.gc_thresh3```, which is 1024 by default),
+it is necessary to increase the default values of sysctl variables
+to allow more entries in the ARP cache.
+
+=== Issue description
+
+In such large deployments problem manifests itself by kernel messages 
+similar to the following ones:
+```
+[ 1738.811139] net_ratelimit: 1045 callbacks suppressed
+[ 1743.823136] net_ratelimit: 293 callbacks suppressed
+```
+
+Also, when using the ```oc``` client the commands fail and the user receives the following messages:
+```
+Unable to connect to the server: dial tcp: lookup <hostname> on <ip>:<port>: write udp <ip>:<port>-><ip>:<port>: write: invalid argument
+```
+
+=== Resolution
+
+To verify the actual amount of ARP entries for IPv4, you could run the following:
+```
+# ip -4 neigh show nud all | wc -l
+```
+
+If the number begins to approach the ```net.ipv4.neigh.default.gc_thresh3``` threshold, 
+the following sysctl values are recommended for large scale deployments:
+
+```
+net.ipv4.neigh.default.gc_thresh1 = 8192
+net.ipv4.neigh.default.gc_thresh2 = 32768
+net.ipv4.neigh.default.gc_thresh3 = 65536
+```
+
+To make these settings permanent across reboots these values need to be entered 
+in ```/etc/sysctl.conf``` and loaded into the current environment by ```sysctl -p```.
