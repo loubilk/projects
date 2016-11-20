@@ -71,12 +71,25 @@ haproxy_counters_clear() {
     wait
 }
 
+haproxy_config_collect() {
+    local tag=$1
+    local haproxy_config=/var/lib/haproxy/conf/haproxy.config
+    local log_dir=$tool_output_dir/logs/$tag
+    mkdir -p $log_dir
+    for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
+        oc exec "${router}" -n ${router_namespace} -- /bin/sh -c "cat ${haproxy_config}" >> $log_dir/${router}-haproxy.config &
+    done
+    wait
+}
+
 router_logs_collect() {
     local tag=$1
+    local log_dir=$tool_output_dir/logs/$tag
+    mkdir -p $log_dir
     # watch for reloads
-    oc get pods -n ${router_namespace} | grep '^router-' >> $tool_output_dir/oc_get_pods-router-$tag.log &
+    oc get pods -n ${router_namespace} | grep '^router-' >> $log_dir/oc_get_pods-router.log &
     for router in $(oc get pod --no-headers -n ${router_namespace} | awk '/^router-/ {print $1}') ; do
-        oc logs "${router}" >> $tool_output_dir/${router}-$tag.log &
+        oc logs "${router}" -n ${router_namespace} >> $log_dir/${router}.log &
     done
     wait
 }
@@ -179,11 +192,13 @@ case "$mode" in
         test "${counters_clear_all}" = Y && haproxy_counters_clear
         $tool_cmd_file >"$tool_stdout_file" 2>"$tool_stderr_file" & echo $! >$tool_pid_file
         router_logs_collect $mode
+        haproxy_config_collect $mode
         popd >/dev/null
         wait
     ;;
     stop)
         router_logs_collect $mode
+        haproxy_config_collect $mode
         pid=`cat $tool_pid_file`
         debug_log "stopping $script_name"
         kill $pid && /bin/rm -f $tool_pid_file
