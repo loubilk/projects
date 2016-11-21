@@ -1,11 +1,9 @@
 #!/bin/sh
 
-cluster_loader_dir=/root/svt/openshift_scalability
-routes=$(printf "%04d" $(oc get routes --all-namespaces | grep hello-openshift | wc -l))
-template=../apps/hello-openshift/hello-openshift.json
-project_basename=hello-openshift-
-projects=180	# 10, 20, 30, 60, 180
-project_start=125
+template=../apps/nginx/nginx.json
+project_basename=nginx-
+projects=10	# 10, 20, 30, 60, 180
+project_start=1
 templates=10	# templates per project
 
 max_not_running() {
@@ -46,11 +44,12 @@ main() {
     i=1
     while test $i -le $templates
     do
-      oc process -vIDENTIFIER=$i -vREPLICAS=1 -vRESPONSE="$data" -f $template | \
+#      oc process -vIDENTIFIER=$i -vREPLICAS=1 -vRESPONSE="$data" -f $template | \
+      oc process -vIDENTIFIER=$i -vREPLICAS=1 -f $template | \
         oc create -f- -n $project
       i=$((i+1))
       
-      max_not_running 5
+      max_not_running 10
     done
   done
 }

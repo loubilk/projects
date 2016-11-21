@@ -1,0 +1,96 @@
+{
+    "apiVersion": "v1",
+    "kind": "Template",
+    "metadata": {
+        "name": "nginx"
+    },
+    "objects": [
+        {
+            "kind": "ReplicationController",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "nginx-${IDENTIFIER}"
+            },
+            "spec": {
+                "replicas": "${REPLICAS}",
+                "template": {
+                    "spec": {
+                        "restartPolicy": "Always",
+                        "nodeSelector": {
+                            "placement": "apps"
+                        },
+                        "containers": [
+                            {
+                                "env": [
+                                    {
+                                        "name": "PORT",
+                                        "value": "${PORT}"
+                                    }
+                                ],
+                                "image": "docker.io/ixbox/nginx",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "nginx",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {
+                                   "limits": {
+                                        "cpu": "800m",
+                                        "memory": "20Mi"
+                                    },
+                                    "requests": {
+                                        "cpu": "10m",
+                                        "memory": "10Mi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "capabilities": {
+                                        "drop": [
+                                            "KILL",
+                                            "MKNOD",
+                                            "SETGID",
+                                            "SETUID",
+                                            "SYS_CHROOT"
+                                        ]
+                                    },
+                                    "privileged": false
+                                },
+                                "terminationMessagePath": "/dev/termination-log"
+                            }
+                        ]
+                    },
+                    "metadata": {
+                        "labels": {
+                            "name": "nginx-${IDENTIFIER}"
+                        }
+                    }
+                },
+                "selector": {
+                    "name": "nginx-${IDENTIFIER}"
+                }
+            }
+        }
+    ],
+    "parameters": [
+        {
+            "name": "PORT",
+            "displayName": "Listen on PORT",
+            "description": "Tells the container to start httpd server on port PORT",
+            "value": "8080"
+        },
+        {
+            "name": "REPLICAS",
+            "displayName": "Number of replicas",
+            "description": "Start with the number of replicas.",
+            "value": "1"
+        },
+        {
+            "name": "IDENTIFIER",
+            "description": "Number to append to the name of resources",
+            "value": "1"
+        }
+    ]
+}

@@ -1,12 +1,10 @@
 #!/bin/sh
 
-cluster_loader_dir=/root/svt/openshift_scalability
-routes=$(printf "%04d" $(oc get routes --all-namespaces | grep hello-openshift | wc -l))
-template=../apps/hello-openshift/hello-openshift.json
-project_basename=hello-openshift-
-projects=60	# 10, 20, 30, 60, 180
+template=../apps/nginx/nginx.json
+project_basename=nginx-
+projects=10	# 10, 20, 30, 60, 180
 templates=10	# templates per project
-replicas=3
+replicas=6
 
 max_not_running() {
   local max_not_running="${1:-10}"
