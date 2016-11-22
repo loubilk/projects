@@ -5,10 +5,13 @@ pctl_bin=pctl
 
 ### functions ###################################################################
 graph_total_latency_pctl() {
+  local results="$1"
+  local dir_out="$2"
   local graph_conf=$(realpath total_latency_pctl.conf)
   local graph_data_in_latency=$dir_out/total_latency_pctl.txt
   local graph_image_out=$dir_out/total_latency_pctl.png
  
+  mkdir -p $dir_out
   rm -f $graph_data_in_latency
   for err in $(awk -F, '{print $2}' $results | sort -u)
   do
@@ -24,6 +27,8 @@ graph_total_latency_pctl() {
 }
 
 graph_time_bytes_hits_latency() {
+  local results="$1"
+  local dir_out="$2"
   local graph_data_in=$dir_out/time_bhl.txt
 
   local graph_bytes_conf=$(realpath time_bytes.conf)
@@ -35,6 +40,7 @@ graph_time_bytes_hits_latency() {
   local graph_latency_conf=$(realpath time_latency.conf)
   local graph_image_out_latency=$dir_out/time_latency.png
 
+  mkdir -p $dir_out
   cat $results | LC_ALL=C sort -t, -n -k1 | \
   awk '
 {
@@ -82,14 +88,16 @@ BEGIN {
 }
 
 main() {
-  mkdir -p $dir_out
-  graph_total_latency_pctl
-  graph_time_bytes_hits_latency
+  local results="$1"
+  local dir_out="$2"
+
+  graph_total_latency_pctl "$results" "$dir_out"
+  graph_time_bytes_hits_latency "$results" "$dir_out"
 }
 
 for r in $(find /var/lib/pbench-agent/ -name results-0.csv)
 do
   results=$r
   dir_out=$(dirname $results)/client/${IDENTIFIER:-0}
-  main
+  main "$results" "$dir_out"
 done
