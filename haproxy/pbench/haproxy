@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Example usage: pbench-register-tool --name=haproxy -- --interval=10
+# Example usage: pbench-register-tool --name=haproxy -- --interval=10 --counters-clear-all
 
 script_path=`dirname $0`
 script_name=`basename $0`
