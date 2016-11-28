@@ -4,11 +4,13 @@ ProgramName=${0##*/}
 
 # Global variables #############################################################
 wlg_selector=test
-wlg_pods=1		# total number of wlg pods to be running and synchronised
+wlg_pods=1		# total number of wlg pods/clients to be running and synchronised
+wlg_pods_start=Y	# Y: start WLG pods
 wlg_project="centos-stress"
 wlg_template=/root/projects/haproxy/stress/stress-pod.json
 gotime_bin=/root/projects/haproxy/bin/gotime
 gotime_doc_root=/root/projects/haproxy/gotime
+targets=routes	# routes|services|endpoints
 
 # WLG variables
 GUN=`hostname`
@@ -33,9 +35,19 @@ die() {
 }
 
 usage() {
+  local err="$1"
+
   cat <<EOF 1>&2
 Usage: $ProgramName
+
+Options:
+  --help|-h      this help
+  -c #           number of clients [$wlg_pods]
+  -p bool        start WLG pods (Y|N) [$wlg_pods_start]
+  -t target      target=routes|services|endpoints [$targets}
 EOF
+
+  test "$err" && exit $err
 }
 
 prepare_gotime_files() {
@@ -43,8 +55,28 @@ prepare_gotime_files() {
   local pbench_dir=${benchmark_run_dir:-/tmp}
 
   mkdir -p ${gotime_doc_root} || die 1 'cannot create gotime document root \`${gotime_doc_root}'
-  oc get routes --no-headers --all-namespaces | awk '{print $3}' > ${file_targets} \
-    || die 1 'cannot prepare a file with OpenShift routes \`${file_targets}'
+  if test $targets = routes ; then
+    oc get routes --no-headers --all-namespaces | awk '{print $3}' > ${file_targets} \
+      || die 1 'cannot prepare a file with OpenShift $targets \`${file_targets}'
+  fi
+
+  # TODO: ugly hack
+  if test $targets = services ; then
+    oc get svc --all-namespaces --no-headers | \
+    awk '/nginx-/ {printf "%s\n", $3}' > ${file_targets} \
+      || die 1 'cannot prepare a file with OpenShift $targets \`${file_targets}'
+  fi
+
+  # TODO: ugly hack
+  if test $targets = endpoints ; then 
+    rm -f ${file_targets}
+    for i in {1..30}
+    do
+      oc get ep -n nginx-$i -o yaml | \
+        grep -- '- ip' | sed 's|    - ip: ||' >> ${file_targets} \
+          || die 1 'cannot prepare a file with OpenShift $targets \`${file_targets}'
+    done
+  fi
 
 #  test "${RUN_TIME}" && echo $RUN_TIME > ${gotime_doc_root}/RUN_TIME	# TODO (to get rid of populate_cluster_with_pods() -> use cluster loader?)
   test "${VEGETA_RPS}" && echo $VEGETA_RPS > ${gotime_doc_root}/vegeta/VEGETA_RPS
@@ -52,6 +84,8 @@ prepare_gotime_files() {
 }
 
 populate_cluster_with_pods() {
+  test "$wlg_pods_start" = Y || return
+
   if oc project $wlg_project 2>&1 ; then
     # $wlg_project exists, recycle it
     for res in pod rc dc bc ; do
@@ -75,6 +109,8 @@ populate_cluster_with_pods() {
 }
 
 wait_for_pods_running() {
+  test "$wlg_pods_start" = Y || return
+
   # all required ${wlg_pods} running and have /root/.ssh from current machine
   # wait for them to terminate
   while true
@@ -91,6 +127,8 @@ wait_for_pods_running() {
 rsync_root_ssh_to_pods() {
   local pod pod_namespace pods_running namespace
 
+  test "$wlg_pods_start" = Y || return
+
   # all required ${wlg_pods} running, "oc rsync /root/.ssh" into them
   for pod_namespace in $(oc get pods --no-headers --all-namespaces --selector=${wlg_selector} | awk '/1\/1/ && /Running/ {printf "%s|%s\n", $2, $1}')
   do
@@ -100,7 +138,7 @@ rsync_root_ssh_to_pods() {
   done
 }
 
-sync_pods() {
+sync_clients() {
 #  $gotime_bin -v -n $wlg_pods -r ${gotime_doc_root}  -- /bin/sh -c 'n=$(oc get pods --no-headers --all-namespaces --selector=${wlg_selector} | grep Running | grep 1/1 | wc -l) ; test "$n" -eq '$wlg_pods
   $gotime_bin -v -n $wlg_pods -r ${gotime_doc_root}  -- true
 }
@@ -124,8 +162,54 @@ main() {
   populate_cluster_with_pods	# let cluster-loader.py do its job and populate cluster with WLG pods
   wait_for_pods_running		# wait for all the WLG pods enter the Running state
   rsync_root_ssh_to_pods	# copy over /root/.ssh to the WLG pods
-  sync_pods			# synchronise the pods to start tests at the same time
+  sync_clients			# synchronise the pods to start tests at the same time
 #  wait_for_pods_shutdown	# wait for all the pods leave the Running state
 }
 
-main
+# option parsing
+while true
+do
+  case "$1" in
+    --[Hh][Ee][Ll][Pp]|-h) usage 0
+    ;;
+
+    -c) if test "$2" ; then
+          wlg_pods="$2"
+        else
+          die 1 "missing # of clients"
+        fi
+        shift
+    ;;
+
+    -p) wlg_pods_start="$2"
+        case $wlg_pods_start in
+          Y|N) wlg_pods_start=$2
+          ;;
+
+          *) test "$2" && die 1 "expected boolean Y|N, received \`$2'"
+          ;;
+        esac
+        shift
+    ;;
+
+    -t) targets="$2"
+        case $targets in
+          routes|services|endpoints) targets=$2
+          ;;
+
+          *) die 1 "invalid target \`$2'"
+          ;;
+        esac
+        shift
+    ;;
+
+    -*) die 1 "$ProgramName: invalid option \`$1'"
+    ;;
+
+    *)  break
+    ;;
+  esac
+  shift
+done
+
+main $@
