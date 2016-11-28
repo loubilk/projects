@@ -79,7 +79,7 @@
             "name": "RESPONSE",
             "displayName": "Response to send back",
             "description": "HTTP response to send back.",
-            "value": "1"
+            "value": "Hello OpenShift!"
         },
         {
             "name": "IDENTIFIER",
