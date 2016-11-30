@@ -2,7 +2,7 @@
 
 # Author: Jiri Mencak
 #
-# usage: haproxy-postprocess <dir>  dir = directory where router-*.csv files can be found
+# usage: haproxy-ocp-postprocess <dir>  dir = directory where router-*.csv files can be found
 #
 # The purpose of this script is to
 # -output the chart data in JSON format
@@ -234,7 +234,6 @@ foreach my $csv (@router_csv) {
     open(my $router_index_fh, ">$router_index") || die "could not open `$router_index' for writing\n";
     html_ln($index_page_fh, "${router_name}.html", $router_name);
     html_ln($index_page_fh, "logs", "logs");
-#    html_ln($index_page_fh, "${router_name}-stop.log", "log after test");
     print $index_page_fh "<br>\n";
     html_head($router_index_fh, $router_name);
     html_router_index($router_index_fh, $router_name);
