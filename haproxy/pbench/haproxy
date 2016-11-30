@@ -177,7 +177,7 @@ tool_stderr_file=$tool_output_dir/$tool-stderr.txt
 case "$mode" in
     install)
         if [[ -e $ose_openshift_master || -e $origin_master ]]; then
-            check_install_rpm $tool_package
+            check_install_rpm atomic-openshift-clients
         else
             printf "This machine is not Openshift master, it is not possible to start $tool on this machine\n"
             exit 1
