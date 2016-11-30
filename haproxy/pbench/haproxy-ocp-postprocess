@@ -12,8 +12,10 @@
 
 # TODO
 # ~~~~
-# - scalability: JavaScript in Firefox cannot handle 1800+ routes depending on 
-#                desktop configuration.  Don't use NVD3?  Limit the number of routes?
+# - scalability: JavaScript in Firefox cannot handle 1800+ routes depending on desktop
+#   configuration.  Do not use NVD3?  Limit the number of routes?
+# - sane defaults for @haproxy_show, disable some graphs by default and look into customising
+#   output for others
 
 use strict;
 use warnings;
@@ -117,7 +119,7 @@ sub graph_name {
   my $key = shift;
   my $name = shift;
   my $graph_name;
-   
+
   $graph_name="$key: $name";
   $graph_name=~tr/\//-/;  # used as filename -> issues with '/' being interpreted as path separator!
   return $graph_name;
@@ -126,7 +128,7 @@ sub graph_name {
 sub html_head {
     my $fh = shift;
     my $title = "index"; $title = shift if @_;
-  
+
     print $fh <<"_HTML_HEAD_";
 <!DOCTYPE HTML>
 <html>
@@ -176,7 +178,7 @@ html_head($index_page_fh);
 foreach my $csv (@router_csv) {
     my $router_index = $csv; $router_index =~ s/\.csv$/.html/;
     my $router_name = $csv; $router_name =~ s/^.*\/([^\/]*)\.csv$/$1/;
-    open(ROUTER_CSV, "$csv") || die "could not find `$csv'\n"; 
+    open(ROUTER_CSV, "$csv") || die "could not find `$csv'\n";
     open(my $router_index_fh, ">$router_index") || die "could not open `$router_index' for writing\n";
     html_ln($index_page_fh, "${router_name}.html", $router_name);
     html_ln($index_page_fh, "logs", "logs");
@@ -227,4 +229,4 @@ close($index_page_fh);
 
 my %graph_threshold;
 my %graph_type;
-gen_data(\%haproxy, \%graph_type, \%graph_threshold, $dir); 
+gen_data(\%haproxy, \%graph_type, \%graph_threshold, $dir);
