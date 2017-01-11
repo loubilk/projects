@@ -2,14 +2,14 @@
     "apiVersion": "v1",
     "kind": "Template",
     "metadata": {
-        "name": "hello-openshift"
+        "name": "nginx"
     },
     "objects": [
         {
             "kind": "ReplicationController",
             "apiVersion": "v1",
             "metadata": {
-                "name": "hello-openshift-${IDENTIFIER}"
+                "name": "nginx-${IDENTIFIER}"
             },
             "spec": {
                 "replicas": "${REPLICAS}",
@@ -25,19 +25,11 @@
                                     {
                                         "name": "PORT",
                                         "value": "${PORT}"
-                                    },
-                                    {
-                                        "name": "RESPONSE",
-                                        "value": "${RESPONSE}"
-                                    },
-                                    {
-                                        "name": "DELAY",
-                                        "value": "${DELAY}"
                                     }
                                 ],
-                                "image": "jmencak/hello-openshift:v0.0.1",
+                                "image": "docker.io/jmencak/nginx",
                                 "imagePullPolicy": "IfNotPresent",
-                                "name": "hello-openshift",
+                                "name": "nginx",
                                 "ports": [
                                     {
                                         "containerPort": 8080,
@@ -54,6 +46,12 @@
                                         "memory": "10Mi"
                                     }
                                 },
+                                "volumeMounts": [
+                                    {
+                                        "name": "nginx-pv",
+                                        "mountPath": "/var/pv"
+                                    }
+                                ],
                                 "securityContext": {
                                     "capabilities": {
                                         "drop": [
@@ -68,16 +66,85 @@
                                 },
                                 "terminationMessagePath": "/dev/termination-log"
                             }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "nginx-pv",
+                                "persistentVolumeClaim": {
+                                    "claimName": "nginx"
+                                }
+                            }
                         ]
                     },
                     "metadata": {
                         "labels": {
-                            "name": "hello-openshift-${IDENTIFIER}"
+                            "name": "nginx-${IDENTIFIER}"
                         }
                     }
                 },
                 "selector": {
-                    "name": "hello-openshift-${IDENTIFIER}"
+                    "name": "nginx-${IDENTIFIER}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "nginx-route-example-${IDENTIFIER}"
+            },
+            "spec": {
+                "host": "${APPLICATION_DOMAIN}",
+                "to": {
+                    "kind": "Service",
+                    "name": "nginx-${IDENTIFIER}"
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "nginx-${IDENTIFIER}",
+                "labels": {
+                    "name": "nginx"
+                },
+                "annotations": {
+                    "description": "Exposes and load balances the application pods"
+                }
+            },
+            "spec": {
+                "selector": {
+                    "name": "nginx-${IDENTIFIER}"
+                },
+                "type": "NodePort",
+                "ports": [
+                    {
+                        "name": "first",
+                        "protocol": "TCP",
+                        "port": 8080,
+                        "targetPort": 8080
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "PersistentVolumeClaim",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "nginx",
+                "annotations": {
+                    "volume.alpha.kubernetes.io/storage-class": "foo"
+                }
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "${VOLUME_CAPACITY}"
+                    }
                 }
             }
         }
@@ -90,22 +157,23 @@
             "value": "8080"
         },
         {
+            "name": "APPLICATION_DOMAIN",
+            "displayName": "Application Hostname",
+            "description": "The exposed hostname that will route to the nginx-* service, if left blank a value will be defaulted.",
+            "value": ""
+        },
+        {
             "name": "REPLICAS",
             "displayName": "Number of replicas",
             "description": "Start with the number of replicas.",
             "value": "1"
         },
-        {   
-            "name": "RESPONSE",
-            "displayName": "Response to send back",
-            "description": "HTTP response to send back.",
-            "value": "Hello OpenShift!"
-        },
-        {   
-            "name": "DELAY",
-            "displayName": "Delay before sending a response back",
-            "description": "Delay [us] before sending a response back.",
-            "value": "0"
+        {
+            "name": "VOLUME_CAPACITY",
+            "displayName": "Volume Capacity",
+            "description": "Volume space available for data, e.g. 512Mi, 2Gi",
+            "value": "1Gi",
+            "required": true
         },
         {
             "name": "IDENTIFIER",

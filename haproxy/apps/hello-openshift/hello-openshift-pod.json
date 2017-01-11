@@ -29,9 +29,13 @@
                             {
                                 "name": "RESPONSE",
                                 "value": "${RESPONSE}"
+                            },
+                            {
+                                "name": "DELAY",
+                                "value": "${DELAY}"
                             }
                         ],
-                        "image": "openshift/hello-openshift",
+                        "image": "jmencak/hello-openshift:v0.0.1",
                         "imagePullPolicy": "IfNotPresent",
                         "name": "hello-openshift",
                         "ports": [
@@ -80,6 +84,18 @@
             "displayName": "Response to send back",
             "description": "HTTP response to send back.",
             "value": "Hello OpenShift!"
+        },
+        {   
+            "name": "RESPONSE",
+            "displayName": "Response to send back",
+            "description": "HTTP response to send back.",
+            "value": "Hello OpenShift!"
+        },
+        {   
+            "name": "DELAY",
+            "displayName": "Delay before sending a response back",
+            "description": "Delay [us] before sending a response back.",
+            "value": "0"
         },
         {
             "name": "IDENTIFIER",
