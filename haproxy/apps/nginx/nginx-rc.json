@@ -21,17 +21,12 @@
                         },
                         "containers": [
                             {
-                                "env": [
-                                    {
-                                        "name": "PORT",
-                                        "value": "${PORT}"
-                                    }
-                                ],
-                                "image": "docker.io/ixbox/nginx",
+                                "image": "docker.io/jmencak/nginx",
                                 "imagePullPolicy": "IfNotPresent",
                                 "name": "nginx",
                                 "ports": [
                                     {
+                                        "name": "http",
                                         "containerPort": 8080,
                                         "protocol": "TCP"
                                     }
@@ -75,12 +70,6 @@
         }
     ],
     "parameters": [
-        {
-            "name": "PORT",
-            "displayName": "Listen on PORT",
-            "description": "Tells the container to start httpd server on port PORT",
-            "value": "8080"
-        },
         {
             "name": "REPLICAS",
             "displayName": "Number of replicas",
