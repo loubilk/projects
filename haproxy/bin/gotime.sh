@@ -16,7 +16,8 @@ targets=routes	# routes|services|endpoints
 GUN=`hostname`
 RUN_TIME=${RUN_TIME:-60}
 PBENCH_DIR=${PBENCH_DIR:-${benchmark_run_dir:-/tmp}}
-VEGETA_RPS=${VEGETA_RPS:-10}
+RPS=${RPS:-10}		# legacy, for vegeta, wrk2
+DELAY=${DELAY:-1000}	# for wrk
 
 # Functions ####################################################################
 fail() {
@@ -79,8 +80,13 @@ prepare_gotime_files() {
   fi
 
 #  test "${RUN_TIME}" && echo $RUN_TIME > ${gotime_doc_root}/RUN_TIME	# TODO (to get rid of populate_cluster_with_pods() -> use cluster loader?)
-  test "${VEGETA_RPS}" && echo $VEGETA_RPS > ${gotime_doc_root}/vegeta/VEGETA_RPS
+  test "${RPS}" && echo $RPS > ${gotime_doc_root}/vegeta/VEGETA_RPS	# legacy tools
+  test "${RPS}" && echo $RPS > ${gotime_doc_root}/wrk2/WRK_RPS		# legacy tools
+  test "${DELAY}" && echo $DELAY > ${gotime_doc_root}/wrk/WRK_DELAY
+  test "${WRK_THREADS}" && echo $WRK_THREADS > ${gotime_doc_root}/wrk/WRK_THREADS
   echo ${PBENCH_DIR} > ${gotime_doc_root}/PBENCH_DIR
+  export TARGET_HOST=$(tr '\n' ':' < $file_targets)	# JMeter
+  export ROUTER_IP=172.31.56.140			# JMeter
 }
 
 populate_cluster_with_pods() {
@@ -100,9 +106,11 @@ populate_cluster_with_pods() {
   do
     oc process \
        -vGUN="${GUN}" \
-       -vRUN="vegeta" \
+       -vRUN="${RUN}" \
        -vRUN_TIME="${RUN_TIME:-600}" \
        -vIDENTIFIER=$i \
+       -vTARGET_HOST="${TARGET_HOST}" \
+       -vROUTER_IP="${ROUTER_IP}" \
        -f $wlg_template | oc create -f-
     i=$(($i+1))
   done
