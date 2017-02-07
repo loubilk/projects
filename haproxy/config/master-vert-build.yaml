@@ -1,0 +1,65 @@
+projects:
+#  - num: 1
+#    basename: openshift
+#    ifexists: reuse
+#    tuning: default
+#    templates:
+#      - num: 1
+#        file: ./content/quickstarts/cakephp/cakephp-build.json
+#
+#  - num: 1
+#    basename: openshift
+#    ifexists: reuse
+#    tuning: default
+#    templates:
+#      - num: 1
+#        file: ./content/quickstarts/dancer/dancer-build.json
+
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1
+        file: ./content/quickstarts/django/django-build.json
+
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1
+        file: ./content/quickstarts/nodejs/nodejs-build.json
+
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1
+        file: ./content/quickstarts/rails/rails-build.json
+
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1
+        file: ./content/quickstarts/eap/eap64-build.json
+
+  - num: 1
+    basename: openshift
+    ifexists: reuse
+    tuning: default
+    templates:
+      - num: 1
+        file: ./content/quickstarts/tomcat/tomcat8-build.json
+
+tuningsets:
+  - name: default
+    pods:
+      stepping:
+        stepsize: 5
+        pause: 0 min
+      rate_limit:
+        delay: 0 ms

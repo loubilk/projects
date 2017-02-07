@@ -1,0 +1,4 @@
+# cp -a haproxy-ocp /opt/pbench-agent/tool-scripts/
+# cp -a haproxy-ocp-postprocess /opt/pbench-agent/tool-scripts/postprocess/
+
+# pbench-register-tool --name=haproxy-ocp -- --interval=10 --counters-clear-all

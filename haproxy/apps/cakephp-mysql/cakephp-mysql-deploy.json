@@ -85,8 +85,8 @@
 			    ],
 			    "from": {
 				"kind": "ImageStreamTag",
-                                "namespace": "openshift",
-				"name": "cakephp-mysql-example:latest"
+				"name": "cakephp-mysql-example:latest",
+                                "namespace": "openshift"
 			    }
 			}
 		    },

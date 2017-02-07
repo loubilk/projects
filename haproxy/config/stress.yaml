@@ -5,11 +5,26 @@ projects:
     tuning: default
     templates:
       - num: 1
-        file: projects/haproxy/stress/stress-pod.json
+        file: ./projects/haproxy/stress/stress-pod.json
         parameters: 
-         - RUN: "vegeta"
-         - RUN_TIME: "600"
-         - GUN: "ip-172-31-42-69.us-west-2.compute.internal"
+          - RUN: "wrk"
+          - RUN_TIME: "120"
+#          - WRK_DELAY: "900"
+          - WRK_DELAY: "0"
+          - WRK_TARGETS: "."
+          - WRK_KEEPALIVE: "y"
+          - WRK_TLS_SESSION_REUSE: "n"
+
+#      - num: 1
+#        file: ./projects/haproxy/stress/stress-pod.json
+#        parameters: 
+#          - RUN: "wrk"
+#          - RUN_TIME: "60"
+#          - WRK_DELAY: "4000"
+#          - WRK_TARGETS: "nginx-[2].router"
+#          - WRK_KEEPALIVE: "y"
+#          - WRK_TLS_SESSION_REUSE: "n"
+
 
 tuningsets:
   - name: default

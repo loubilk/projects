@@ -63,6 +63,22 @@
                                 "value": "${VEGETA_RPS}"
                             },
                             {
+                                "name": "WRK_DELAY",
+                                "value": "${WRK_DELAY}"
+                            },
+                            {
+                                "name": "WRK_TARGETS",
+                                "value": "${WRK_TARGETS}"
+                            },
+                            {
+                                "name": "WRK_KEEPALIVE",
+                                "value": "${WRK_KEEPALIVE}"
+                            },
+                            {
+                                "name": "WRK_TLS_SESSION_REUSE",
+                                "value": "${WRK_TLS_SESSION_REUSE}"
+                            },
+                            {
                                 "name": "PBENCH_DIR",
 				"value": "${PBENCH_DIR}"
                             },
@@ -83,6 +99,12 @@
                         "imagePullPolicy": "Always",
                         "name": "centos-stress",
                         "resources": {},
+                        "volumeMounts": [
+                            {   
+                                "name": "targets",
+                                "mountPath": "/opt/wlg"
+                            }
+                        ],  
                         "securityContext": {
                             "capabilities": {
                                 "drop": [
@@ -99,6 +121,14 @@
                             }
                         },
                         "terminationMessagePath": "/dev/termination-log"
+                    }
+                ],
+                "volumes": [
+                    {   
+                        "name": "targets",
+                        "configMap": {
+                            "name": "wlg-targets"
+                        }
                     }
                 ],
                 "imagePullSecrets": [
@@ -170,6 +200,30 @@
 	    "displayName": "Vegeta requests/second",
 	    "description": "Vegeta HTTP load testing tool requests per second (per all targets combined).",
 	    "value": "100"
+	},
+	{
+	    "name": "WRK_DELAY",
+	    "displayName": "Delay between requests for wrk",
+	    "description": "Delay between requests for the wrk client in ms.",
+	    "value": "1000"
+	},
+	{
+	    "name": "WRK_TARGETS",
+	    "displayName": "Regex to select target routes",
+	    "description": "Regex to select target routes for wrk.",
+	    "value": "."
+	},
+	{
+	    "name": "WRK_KEEPALIVE",
+	    "displayName": "Enable http-keepalive for wrk",
+	    "description": "Enable http-keepalive for wrk.",
+	    "value": "y"
+	},
+	{
+	    "name": "WRK_TLS_SESSION_REUSE",
+	    "displayName": "Enable TLS session reuse for wrk",
+	    "description": "Enable TLS session reuse for wrk.",
+	    "value": "n"
 	},
 	{
 	    "name": "ROUTER_IP",
