@@ -17,7 +17,7 @@
             },
             "spec": {
 		"nodeSelector": {
-		    "placement": "test"
+		    "placement": "${PLACEMENT}"
 		},
                 "containers": [
                     {
@@ -71,8 +71,16 @@
                                 "value": "${WRK_TARGETS}"
                             },
                             {
+                                "name": "WRK_CONNS_PER_THREAD",
+                                "value": "${WRK_CONNS_PER_THREAD}"
+                            },
+                            {
                                 "name": "WRK_KEEPALIVE",
                                 "value": "${WRK_KEEPALIVE}"
+                            },
+                            {
+                                "name": "URL_PATH",
+                                "value": "${URL_PATH}"
                             },
                             {
                                 "name": "WRK_TLS_SESSION_REUSE",
@@ -115,7 +123,7 @@
                                     "SYS_CHROOT"
                                 ]
                             },
-                            "privileged": false,
+                            "privileged": true,
                             "seLinuxOptions": {
                                 "level": "s0:c9,c4"
                             }
@@ -214,6 +222,12 @@
 	    "value": "."
 	},
 	{
+	    "name": "WRK_CONNS_PER_THREAD",
+	    "displayName": "Connections per thread for wrk",
+	    "description": "Connections per thread for wrk.",
+	    "value": "y"
+	},
+	{
 	    "name": "WRK_KEEPALIVE",
 	    "displayName": "Enable http-keepalive for wrk",
 	    "description": "Enable http-keepalive for wrk.",
@@ -224,6 +238,12 @@
 	    "displayName": "Enable TLS session reuse for wrk",
 	    "description": "Enable TLS session reuse for wrk.",
 	    "value": "n"
+	},
+	{
+	    "name": "URL_PATH",
+	    "displayName": "URL path to query",
+	    "description": "URL path to query with http(s) requests.",
+	    "value": "/"
 	},
 	{
 	    "name": "ROUTER_IP",
@@ -242,6 +262,12 @@
 	    "displayName": "GUN IP Addr",
 	    "description": "The IP of the machine running cluster loader",
 	    "value": "127.0.0.1"
+	},
+	{
+	    "name": "PLACEMENT",
+	    "displayName": "Placement of the WLG pod",
+	    "description": "Placement of the WLG pod based on a node selector.",
+	    "value": "test"
 	},
     	{
       	    "name": "IDENTIFIER",
