@@ -77,20 +77,6 @@
             "kind": "Route",
             "apiVersion": "v1",
             "metadata": {
-                "name": "nginx-route-example-${IDENTIFIER}"
-            },
-            "spec": {
-                "host": "${APPLICATION_DOMAIN}",
-                "to": {
-                    "kind": "Service",
-                    "name": "nginx-${IDENTIFIER}"
-                }
-            }
-        },
-        {
-            "kind": "Route",
-            "apiVersion": "v1",
-            "metadata": {
                 "name": "secure-nginx-route-example-${IDENTIFIER}"
             },
             "spec": {
