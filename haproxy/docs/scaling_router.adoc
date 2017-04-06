@@ -1,0 +1,39 @@
+[[scaling-router]]
+= Router
+{product-author}
+{product-version}
+:data-uri:
+:icons:
+:experimental:
+
+== Overview
+
+The {product-title} xref:../../architecture/core_concepts/routes.adoc#architecture-core-concepts-routes[router] is
+the ingress point for all external traffic destined for
+xref:../../architecture/core_concepts/pods_and_services.adoc#services[services]
+in your {product-title} installation.
+
+This topic provides information for scaling the HAProxy router plugin component.
+
+[[cluster-router-haproxy-scaling]]
+== Scaling {product-title} HAProxy Router
+
+On an Amazon EC2 m4.xlarge instance a single HAProxy router is able to handle
+between 7000-32000 HTTP keep-alive requests depending on encryption, page size 
+and the number of connections used.  When using TLS 
+xref:../architecture/core_concepts/routes.adoc#edge-termination[edge] or
+xref:../architecture/core_concepts/routes.adoc#re-encryption-termination[re-encryption]
+terminations, larger page sizes and higher numbers of connections expect to see results 
+in the lower range.  With HTTP keep-alive a single HAProxy router is capable
+of saturating 1Gbit NIC at page sizes as small as 8kB.
+
+On Intel(R) Xeon(R) CPU E5-2680 v3 @ 2.50GHz you can expect roughly twice 
+the performance of the Amazon EC2 m4.xlarge router instance above.
+
+In general, HAProxy will be able to saturate about 10--1000 applications depending 
+on the technology in use.  The number will be typically lower for applications 
+serving only static content.
+
+Router 
+xref:../architecture/core_concepts/routes.adoc#router-sharding[sharding]
+should be used to serve more routes towards applications.
