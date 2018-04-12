@@ -16,7 +16,6 @@
                 "template": {
                     "spec": {
                         "restartPolicy": "Always",
-                        "nodeSelector": {
                         },
                         "containers": [
                             {
