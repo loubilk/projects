@@ -16,7 +16,6 @@
                 "template": {
                     "spec": {
                         "restartPolicy": "Always",
-                        },
                         "containers": [
                             {
                                 "image": "docker.io/jmencak/nginx",
