@@ -16,8 +16,6 @@
                 "template": {
                     "spec": {
                         "restartPolicy": "Always",
-                        "nodeSelector": {
-                            "placement": "apps"
                         },
                         "containers": [
                             {
